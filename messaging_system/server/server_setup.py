@@ -3,13 +3,16 @@
 import socket
 import threading
 
-import server.config
+from messaging_system.server.config import server_config
+from messaging_system.server.request_handler import RequestHandler
 
 class ServerSetup:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET,
                                   socket.SOCK_DGRAM)
-        self.sock.bind((server.config.server_config['SERVER_IP_ADDR'], server.config.server_config['UDP_PORT']))
+        self.sock.bind((server_config['SERVER_IP_ADDR'], server_config['UDP_PORT']))
+
+        self.request_handler = RequestHandler()
 
     def initiate_listening_thread(self):
         self.listen_thread = threading.Thread(name = 'listen_thread', target =  self.__listen_receive, args = ( ) )
@@ -22,9 +25,8 @@ class ServerSetup:
     # Is run on a worker thread; constantly listens for new packets from clients in the background
     def __listen_receive(self):
         while True:
-            data, addr = self.sock.recvfrom(server.config.server_config['BUFFER_MAX_SIZE'])
-            print( data.decode() )
-            print( addr )
+            data, addr = self.sock.recvfrom(server_config['BUFFER_MAX_SIZE'])
+            self.request_handler.handle_request(data, addr)
 
     def __listen_writing(self):
         while True:
