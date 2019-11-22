@@ -5,6 +5,7 @@ import threading
 
 from messaging_system.server.config import server_config
 from messaging_system.server.request_handler import RequestHandler
+from messaging_system.server.client_connection_service import ClientConnectionService
 
 class ServerSetup:
     def __init__(self):
@@ -12,7 +13,8 @@ class ServerSetup:
                                   socket.SOCK_DGRAM)
         self.sock.bind((server_config['SERVER_IP_ADDR'], server_config['UDP_PORT']))
 
-        self.request_handler = RequestHandler()
+        self.client_connection_service = ClientConnectionService()
+        self.request_handler = RequestHandler( self.client_connection_service )
 
     def initiate_listening_thread(self):
         self.listen_thread = threading.Thread(name = 'listen_thread', target =  self.__listen_receive, args = ( ) )
