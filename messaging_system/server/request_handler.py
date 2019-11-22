@@ -2,7 +2,7 @@
 
 import json
 
-from messaging_system.resources import opcodes, MAGIC_NUMBER_1, MAGIC_NUMBER_2
+from messaging_system.resources import opcodes, MAGIC_NUMBER_1, MAGIC_NUMBER_2, header_keys
 from messaging_system.server.exceptions import MalformedRequestHeaderException, InvalidTokenException, MalformedRequestIdentityException
 
 class RequestHandler:
@@ -26,16 +26,16 @@ class RequestHandler:
 
     # Depending on the opcode, handle the request in a different manner
     def _multiplex_request(self, payload):
-        if( not 'opcode' in payload ):
+        if( not header_keys['OPCODE'] in payload ):
             raise MalformedRequestIdentityException("Missing Opcode in request")
 
-        if( not 'magic_num_1' in payload 
-            or not 'magic_num_2' in payload 
-            or not payload['magic_num_1'] != MAGIC_NUMBER_1
-            or not payload['magic_num_2'] != MAGIC_NUMBER_2 ):
+        if( not header_keys['MAGIC_NUM_1'] in payload 
+            or not header_keys['MAGIC_NUM_2'] in payload 
+            or not payload[header_keys['MAGIC_NUM_1']] != MAGIC_NUMBER_1
+            or not payload[header_keys['MAGIC_NUM_2']] != MAGIC_NUMBER_2 ):
             raise MalformedRequestIdentityException("Invalid Magic Numbers in Request")
 
-        if( payload['opcode'] == opcodes['LOGIN'] ):
+        if( payload[header_keys['OPCODE']] == opcodes['LOGIN'] ):
             try:
                 self._handle_login(payload)
             except Exception as err:
@@ -92,32 +92,32 @@ class RequestHandler:
         return validate
 
     def _handle_login(self, payload):
-        if( not( 'username' in payload or 'password' in payload ) ):
+        if( not( header_keys['USERNAME'] in payload or header_keys['PASSWORD'] in payload ) ):
             raise MalformedRequestHeaderException("Missing login information in LOGIN request")
 
-        self.client_connection_service.login(payload['username'], payload['password'])
+        self.client_connection_service.login(payload[header_keys['USERNAME']], payload[header_keys['PASSWORD']])
         
 
     @validate_token_exists
     def _handle_subscribe(self, payload):
-        if( not 'subscribe_username' in payload ):
+        if( not header_keys['SUBSCRIBE_USERNAME'] in payload ):
             raise MalformedRequestHeaderException("Missing subscribe_username in SUBSCRIBE request")
     
-        self.client_connection_service.subscribe(payload['token'], payload['subscribe_username'])
+        self.client_connection_service.subscribe(payload[header_keys['TOKEN']], payload[header_keys['SUBSCRIBE_USERNAME']])
 
     @validate_token_exists
     def _handle_unsubscribe(self, payload):
         if( not 'unsubscribe_username' in payload ):
             raise MalformedRequestHeaderException("Missing unsubscribe_username in SUBSCRIBE request")
 
-        self.client_connection_service.unsubscribe(payload['token'], payload['unsubscribe_username'])
+        self.client_connection_service.unsubscribe(payload[header_keys['TOKEN']], payload[header_keys['UNSUBSCRIBE_USERNAME']])
 
     @validate_token_exists
     def _handle_post(self, payload):
         if( not 'message' in payload):
             raise MalformedRequestHeaderException("Missing message in POST request")
 
-        self.client_connection_service.post(payload['token'], payload['message'])
+        self.client_connection_service.post(payload[header_keys['TOKEN']], payload[header_keys['MESSAGE']])
 
     @validate_token_exists
     def _handle_forward_ack(self, payload):
@@ -128,8 +128,8 @@ class RequestHandler:
         if( not 'num_messages' in payload):
             raise MalformedRequestHeaderException("Missing number of message in RETRIEVE request")
 
-        self.client_connection_service.retrieve(payload['token'], payload['num_messages'])
+        self.client_connection_service.retrieve(payload[header_keys['TOKEN']], payload[header_keys['NUM_MESSAGES']])
 
     @validate_token_exists
     def _handle_logout(self, payload):
-        self.client_connection_service.logout(payload['token'])
+        self.client_connection_service.logout(payload[header_keys['TOKEN']])
