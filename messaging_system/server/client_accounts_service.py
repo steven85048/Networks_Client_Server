@@ -27,10 +27,10 @@ class ClientAccountsService:
 
         return None
 
-    def login(self, username, password):
+    def login(self, username, password, addr):
         for account in self.client_accounts:
             if( account.username == username and account.password == password ):
-                account.generate_token()
+                account.generate_token(addr)
                 return account.token
         return None
 

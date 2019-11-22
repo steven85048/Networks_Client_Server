@@ -14,11 +14,15 @@ class ClientConnectionServiceTests(unittest.TestCase):
         self.connection_service.add_account('ac4', 'pass4')
 
     def test_login(self):
-        token = self.connection_service.login('ac1', 'pass1')
+        addr = ('127.0.0.1', 2000)
+
+        token = self.connection_service.login('ac1', 'pass1', addr)
         self.assertTrue(not token is None)
 
     def test_invalid_login(self):
-        token = self.connection_service.login('ac1', 'wrong_pass')
+        addr = ('127.0.0.1', 2000)
+
+        token = self.connection_service.login('ac1', 'wrong_pass', addr)
         self.assertTrue(token is None)
 
     def test_malformed_token_1(self):
@@ -34,17 +38,21 @@ class ClientConnectionServiceTests(unittest.TestCase):
             self.connection_service.retrieve(token, 3)
 
     def test_get_user_from_token(self):
-        token = self.connection_service.login('ac2', 'pass2')
+        addr = ('127.0.0.1', 2000)
+
+        token = self.connection_service.login('ac2', 'pass2', addr)
         account = self.connection_service._get_user_from_token(token)
         self.assertTrue(not account is None)
         self.assertEqual(account.get_username(), 'ac2')
         self.assertTrue(account.is_token_valid())
 
     def test_subscribe_and_retrieve(self):
-        token1 = self.connection_service.login('ac1', 'pass1')
-        token2 = self.connection_service.login('ac2', 'pass2')
-        token3 = self.connection_service.login('ac3', 'pass3')
-        token4 = self.connection_service.login('ac4', 'pass4')
+        addr = ('127.0.0.1', 2000)
+
+        token1 = self.connection_service.login('ac1', 'pass1', addr)
+        token2 = self.connection_service.login('ac2', 'pass2', addr)
+        token3 = self.connection_service.login('ac3', 'pass3', addr)
+        token4 = self.connection_service.login('ac4', 'pass4', addr)
 
         self.connection_service.subscribe(token1, 'ac3')
         self.connection_service.subscribe(token2, 'ac3')
@@ -70,8 +78,10 @@ class ClientConnectionServiceTests(unittest.TestCase):
         self.assertTrue( not post_message in ac4_messages )
 
     def test_unsubscribe(self):
-        token1 = self.connection_service.login('ac1', 'pass1')
-        token2 = self.connection_service.login('ac2', 'pass2')
+        addr = ('127.0.0.1', 2000) 
+    
+        token1 = self.connection_service.login('ac1', 'pass1', addr)
+        token2 = self.connection_service.login('ac2', 'pass2', addr)
 
         self.connection_service.subscribe(token1, 'ac2')
 

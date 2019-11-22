@@ -35,8 +35,10 @@ class ClientAccount:
         num_messages = min(len(self.messages), num_messages)
         return self.messages[-num_messages:]
 
-    def generate_token(self):
-        self.token = {'token_val' : self._generate_token(), 'time' : self._generate_current_time()}
+    def generate_token(self, addr):
+        self.token = {  'token_val' : self._generate_token(), 
+                        'time' : self._generate_current_time(),
+                        'client_addr' : { 'ip_addr' : addr[0], 'port' : addr[1] } }
 
     def is_token_valid(self):
         if( self.token == None ):

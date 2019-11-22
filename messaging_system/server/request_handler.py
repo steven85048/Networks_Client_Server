@@ -16,6 +16,8 @@ class RequestHandler:
         decoded_payload = json.loads( data.decode() )
         print(decoded_payload)
 
+        self.curr_addr = addr
+
         self._multiplex_request(decoded_payload)
 
     # Depending on the opcode, handle the request in a different manner

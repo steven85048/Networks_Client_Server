@@ -32,8 +32,8 @@ class ClientConnectionService:
     def add_account(self, username, password):
         self.client_accounts_service.add_account(username, password)
 
-    def login(self, username, password):
-        return self.client_accounts_service.login(username, password)
+    def login(self, username, password, addr):
+        return self.client_accounts_service.login(username, password, addr)
 
     @user_logged_in
     def logout(self, token):
