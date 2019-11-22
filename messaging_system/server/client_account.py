@@ -1,4 +1,6 @@
-# Data Class for a Client Account
+# Data Class for a Client Account - This class handles the CRUD for a SINGLE account;
+# The client_accounts_service will have a method that returns this object, allowing easy
+# management of the associated account.
 # TODO: move to postgresql
 
 from numpy.random import randint
@@ -23,14 +25,18 @@ class ClientAccount:
     def remove_subscription(self, subscription):
         self.subscriptions.remove(subscription)
 
-    def generate_token(self):
-        self.token = {'token_val' : self._generate_token(), 'time' : self._generate_current_time()}
-
     def get_token(self):
         return self.token
 
     def get_username(self):
         return self.username
+
+    def get_messages(self, num_messages):
+        num_messages = min(len(self.messages), num_messages)
+        return self.messages[-num_messages:]
+
+    def generate_token(self):
+        self.token = {'token_val' : self._generate_token(), 'time' : self._generate_current_time()}
 
     def is_token_valid(self):
         if( self.token == None ):

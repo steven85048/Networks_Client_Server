@@ -3,22 +3,16 @@
 
 from messaging_system.server.client_account import ClientAccount
 from messaging_system.server.exceptions import MalformedTokenException, InvalidTokenException
+from messaging_system.server.client_accounts_service import ClientAccountsService
 
 class ClientConnectionService:
     def __init__(self):
-        self.client_accounts = []
         self.curr_account = None
-
-        # Create accounts here for testing
-        ac1 = ClientAccount('ac1', 'pass')
-        ac2 = ClientAccount('ac2', 'pass')
-
-        self.client_accounts.append(ac1)
-        self.client_accounts.append(ac2)
+        self.client_accounts_service = ClientAccountsService()
 
     # NOTE that the first parameter of each method with this decorator MUST have the token
     # This decorator also associates the account with the token
-    def user_logged_in(function):
+    def user_logged_in(func):
         def validate_token(self, user_token, *args):
             self.curr_account = None
 
@@ -31,20 +25,15 @@ class ClientConnectionService:
                 raise InvalidTokenException(user_token)
 
             self.curr_account = account
-            return function(self, user_token, *args)
+            return func(self, user_token, *args)
 
         return validate_token
 
     def add_account(self, username, password):
-        new_account = ClientAccount(username, password)
-        self.client_accounts.append(new_account)
+        self.client_accounts_service.add_account(username, password)
 
     def login(self, username, password):
-        for account in self.client_accounts:
-            if( account.username == username and account.password == password ):
-                account.generate_token()
-                return account.token
-        return None
+        return self.client_accounts_service.login(username, password)
 
     @user_logged_in
     def logout(self, token):
@@ -63,15 +52,12 @@ class ClientConnectionService:
         self.curr_account.add_message(message)
 
         # Relay all messages back to the subscribers
+        subscriber_tokens = self.client_accounts_service.add_message_to_subscribers(self.curr_account.get_username(), message)
+        return subscriber_tokens
 
     @user_logged_in
-    def retrieve(self, token):
-        pass
+    def retrieve(self, token, num_messages):
+        return self.curr_account.get_messages( num_messages )
 
     def _get_user_from_token(self, token):
-        for account in self.client_accounts:
-            account_token = account.get_token()
-            if( not account_token is None and account_token['token_val'] == token['token_val'] ):
-                return account
-                
-        return None
+        return self.client_accounts_service.get_user_from_token(token)
