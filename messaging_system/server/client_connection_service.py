@@ -3,22 +3,6 @@
 
 from messaging_system.server.client_account import ClientAccount
 
-class ConnectionDecorators:
-    # NOTE that the first parameter of each method with this decorator MUST have the token
-    # This decorator also associates the account with the token
-    @classmethod
-    def user_logged_in(function):
-        def validate_token(self, user_token, *args):
-            self.curr_account = None
-            account = self._get_user_from_token(user_token)
-
-            if( account is None or not account.is_token_valid() ):
-                print("Token " + str(user_token) + " is invalid")
-                return None
-
-            self.curr_account = account
-            return function(self, user_token, *args)
-
 class ClientConnectionService:
     def __init__(self):
         self.client_accounts = []
@@ -31,28 +15,44 @@ class ClientConnectionService:
         self.client_accounts.append(ac1)
         self.client_accounts.append(ac2)
 
+    # NOTE that the first parameter of each method with this decorator MUST have the token
+    # This decorator also associates the account with the token
+    def user_logged_in(function):
+        def validate_token(self, user_token, *args):
+            self.curr_account = None
+            account = self._get_user_from_token(user_token)
+
+            if( account is None or not account.is_token_valid() ):
+                print("Token " + str(user_token) + " is invalid")
+                return None
+
+            self.curr_account = account
+            return function(self, user_token, *args)
+
+        return validate_token
+
     def login(self, username, password):
         for account in self.client_accounts:
             if( account.username == username and account.password == password ):
                 account.generate_token()
 
-    @ConnectionDecorators.user_logged_in
+    @user_logged_in
     def logout(self, token):
         self.curr_account.token = None
 
-    @ConnectionDecorators.user_logged_in
+    @user_logged_in
     def subscribe(self, token, to_subscribe_username):
         self.curr_account.add_subscription(to_subscribe_username)
 
-    @ConnectionDecorators.user_logged_in
+    @user_logged_in
     def unsubscribe(self, token, to_unsubscribe_username):
         self.curr_account.remove_subscription(to_unsubscribe_username)
 
-    @ConnectionDecorators.user_logged_in
+    @user_logged_in
     def post(self, token, message):
         pass
 
-    @ConnectionDecorators.user_logged_in
+    @user_logged_in
     def retrieve(self, token):
         pass
 

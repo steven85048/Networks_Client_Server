@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import timedelta
 
 server_config = dict(
     SERVER_IP_ADDR = "127.0.0.1",
@@ -7,4 +7,4 @@ server_config = dict(
 )
 
 MAX_RANDOM_TOKEN = 50000
-TOKEN_EXPIRATION_INTERVAL = datetime.timedelta(hours = 1)
+TOKEN_EXPIRATION_INTERVAL = timedelta(hours = 1)
