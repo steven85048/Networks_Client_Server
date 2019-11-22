@@ -20,3 +20,6 @@ opcodes = dict(
     LOGOUT = 0x1F,
     LOGOUT_ACK = 0x8F
 )
+
+MAGIC_NUMBER_1 = 'S'
+MAGIC_NUMBER_2 = 'T'

@@ -2,8 +2,8 @@
 
 import json
 
-from messaging_system.resources import opcodes
-from messaging_system.server.exceptions import MalformedRequestHeaderException
+from messaging_system.resources import opcodes, MAGIC_NUMBER_1, MAGIC_NUMBER_2
+from messaging_system.server.exceptions import MalformedRequestHeaderException, InvalidTokenException, MalformedRequestIdentityException
 
 class RequestHandler:
     def __init__(self, client_connection_service):
@@ -18,35 +18,76 @@ class RequestHandler:
 
         self.curr_addr = addr
 
-        self._multiplex_request(decoded_payload)
+        try: 
+            self._multiplex_request(decoded_payload)
+        except MalformedRequestIdentityException as err:
+            # Send back invalid header packet
+            pass
 
     # Depending on the opcode, handle the request in a different manner
     def _multiplex_request(self, payload):
-        if( not payload.opcode ):
-            raise MalformedRequestHeaderException("Missing Opcode in request")
+        if( not 'opcode' in payload ):
+            raise MalformedRequestIdentityException("Missing Opcode in request")
 
-        if( payload.opcode == opcodes['LOGIN'] ):
-            self._handle_login(payload)
+        if( not 'magic_num_1' in payload 
+            or not 'magic_num_2' in payload 
+            or not payload['magic_num_1'] != MAGIC_NUMBER_1
+            or not payload['magic_num_2'] != MAGIC_NUMBER_2 ):
+            raise MalformedRequestIdentityException("Invalid Magic Numbers in Request")
+
+        if( payload['opcode'] == opcodes['LOGIN'] ):
+            try:
+                self._handle_login(payload)
+            except Exception as err:
+                # Send 
+                pass
         elif( payload.opcode == opcodes['SUBSCRIBE']):
-            self._handle_subscribe(payload)
+            try: 
+                self._handle_subscribe(payload)
+            except Exception as err:
+                pass
+
         elif( payload.opcode == opcodes['UNSUBSCRIBE']):
-            self._handle_unsubscribe(payload)
+            try:
+                self._handle_unsubscribe(payload)
+            except Exception as err:
+                pass
         elif( payload.opcode == opcodes['POST']):
-            self._handle_post(payload)
+            try: 
+                self._handle_post(payload)
+            except Exception as err:
+                pass
         elif( payload.opcode == opcodes['FORWARD_ACK']):
-            self._handle_forward_ack(payload)
+            try: 
+                self._handle_forward_ack(payload)
+            except Exception as err:
+                pass
         elif( payload.opcode == opcodes['RETRIEVE']):
-            self._handle_retrieve(payload)
+            try: 
+                self._handle_retrieve(payload)
+            except Exception as err:
+                pass
         elif( payload.opcode == opcodes['LOGOUT'] ):
-            self._handle_logout(payload)
-        else
-            raise MalformedRequestHeaderException("Opcode {payload.opcode} is invalid")
+            try: 
+                self._handle_logout(payload)
+            except Exception as err:
+                pass                
+        else:
+            raise MalformedRequestIdentityException("Opcode {payload.opcode} is invalid")
         
     def validate_token_exists(func):
         def validate(self, payload):
-            if( not 'token' in payload):
-                raise MalformedRequestHeaderException("Token missing from request")
-            return func(self, payload)
+            try: 
+                # Special case for login, since token is not set of course
+                if( not func.__name__ == '_handle_login' and not 'token' in payload):
+                    raise MalformedRequestHeaderException("Token missing from request")
+                func(self, payload)
+            except InvalidTokenException as err:
+                # Send must-login-first-error
+                pass
+            except Exception as err:
+                print(err)
+                raise
 
         return validate
 
@@ -55,6 +96,7 @@ class RequestHandler:
             raise MalformedRequestHeaderException("Missing login information in LOGIN request")
 
         self.client_connection_service.login(payload['username'], payload['password'])
+        
 
     @validate_token_exists
     def _handle_subscribe(self, payload):
@@ -78,16 +120,16 @@ class RequestHandler:
         self.client_connection_service.post(payload['token'], payload['message'])
 
     @validate_token_exists
-    def _handle_forward_ack(self):
+    def _handle_forward_ack(self, payload):
         pass
 
     @validate_token_exists
-    def _handle_retrieve(self):
+    def _handle_retrieve(self, payload):
         if( not 'num_messages' in payload):
             raise MalformedRequestHeaderException("Missing number of message in RETRIEVE request")
 
         self.client_connection_service.retrieve(payload['token'], payload['num_messages'])
 
     @validate_token_exists
-    def _handle_logout(self):
+    def _handle_logout(self, payload):
         self.client_connection_service.logout(payload['token'])
