@@ -4,6 +4,7 @@ import json
 
 from messaging_system.resources import opcodes, MAGIC_NUMBER_1, MAGIC_NUMBER_2, header_keys
 from messaging_system.server.exceptions import MalformedRequestHeaderException, InvalidTokenException, MalformedRequestIdentityException
+from messaging_system.server.server_message_factory import ServerMessageFactory
 
 class RequestHandler:
     def __init__(self, client_connection_service):
@@ -21,8 +22,7 @@ class RequestHandler:
         try: 
             self._multiplex_request(decoded_payload)
         except MalformedRequestIdentityException as err:
-            # Send back invalid header packet
-            pass
+            response = ServerMessageFactory.invalid_header_identity(str(err))
 
     # Depending on the opcode, handle the request in a different manner
     def _multiplex_request(self, payload):
@@ -35,43 +35,46 @@ class RequestHandler:
             or not payload[header_keys['MAGIC_NUM_2']] != MAGIC_NUMBER_2 ):
             raise MalformedRequestIdentityException("Invalid Magic Numbers in Request")
 
+        # NOTE that some exceptions below are not relayed back to the user since
+        # not mandated
+
         if( payload[header_keys['OPCODE']] == opcodes['LOGIN'] ):
             try:
                 self._handle_login(payload)
             except Exception as err:
-                # Send 
-                pass
+                print(err)
+                response = ServerMessageFactory.failed_login_ack(str(err))
         elif( payload.opcode == opcodes['SUBSCRIBE']):
             try: 
                 self._handle_subscribe(payload)
             except Exception as err:
-                pass
-
+                print(err)
+                response = ServerMessageFactory.failed_subscribe_ack(str(err))
         elif( payload.opcode == opcodes['UNSUBSCRIBE']):
             try:
                 self._handle_unsubscribe(payload)
             except Exception as err:
-                pass
+                print(err)
         elif( payload.opcode == opcodes['POST']):
             try: 
                 self._handle_post(payload)
             except Exception as err:
-                pass
+                response = ServerMessageFactory.failed_post_ack(str(err))
         elif( payload.opcode == opcodes['FORWARD_ACK']):
             try: 
                 self._handle_forward_ack(payload)
             except Exception as err:
-                pass
+                print(err)
         elif( payload.opcode == opcodes['RETRIEVE']):
             try: 
                 self._handle_retrieve(payload)
             except Exception as err:
-                pass
+                print(err)
         elif( payload.opcode == opcodes['LOGOUT'] ):
             try: 
                 self._handle_logout(payload)
             except Exception as err:
-                pass                
+                print(err)
         else:
             raise MalformedRequestIdentityException("Opcode {payload.opcode} is invalid")
         
