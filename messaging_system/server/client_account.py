@@ -26,6 +26,12 @@ class ClientAccount:
     def generate_token(self):
         self.token = {'token_val' : self._generate_token(), 'time' : self._generate_current_time()}
 
+    def get_token(self):
+        return self.token
+
+    def get_username(self):
+        return self.username
+
     def is_token_valid(self):
         if( self.token == None ):
             return False
