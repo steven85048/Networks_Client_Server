@@ -48,9 +48,7 @@ class ClientConnectionService:
         self.curr_account.remove_subscription(to_unsubscribe_username)
 
     @user_logged_in
-    def post(self, token, message):
-        self.curr_account.add_message(message)
-
+    def post(self, token, message): 
         # Relay all messages back to the subscribers
         subscriber_tokens = self.client_accounts_service.add_message_to_subscribers(self.curr_account.get_username(), message)
         return subscriber_tokens
