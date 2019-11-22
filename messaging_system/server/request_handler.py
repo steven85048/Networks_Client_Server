@@ -110,14 +110,14 @@ class RequestHandler:
 
     @validate_token_exists
     def _handle_unsubscribe(self, payload):
-        if( not 'unsubscribe_username' in payload ):
+        if( not header_keys['UNSUBSCRIBE_USERNAME'] in payload ):
             raise MalformedRequestHeaderException("Missing unsubscribe_username in SUBSCRIBE request")
 
         self.client_connection_service.unsubscribe(payload[header_keys['TOKEN']], payload[header_keys['UNSUBSCRIBE_USERNAME']])
 
     @validate_token_exists
     def _handle_post(self, payload):
-        if( not 'message' in payload):
+        if( not header_keys['MESSAGE'] in payload):
             raise MalformedRequestHeaderException("Missing message in POST request")
 
         self.client_connection_service.post(payload[header_keys['TOKEN']], payload[header_keys['MESSAGE']])
@@ -128,7 +128,7 @@ class RequestHandler:
 
     @validate_token_exists
     def _handle_retrieve(self, payload):
-        if( not 'num_messages' in payload):
+        if( not header_keys['NUM_MESSAGES'] in payload):
             raise MalformedRequestHeaderException("Missing number of message in RETRIEVE request")
 
         self.client_connection_service.retrieve(payload[header_keys['TOKEN']], payload[header_keys['NUM_MESSAGES']])
