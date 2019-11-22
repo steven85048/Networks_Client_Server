@@ -31,7 +31,7 @@ class ClientConnectionServiceTests(unittest.TestCase):
         with self.assertRaises(MalformedTokenException):
             self.connection_service.retrieve(token)
 
-    def test_token_account_retrieval(self):
+    def test_get_user_from_token(self):
         token = self.connection_service.login('ac2', 'pass2')
         account = self.connection_service._get_user_from_token(token)
         self.assertTrue(not account is None)

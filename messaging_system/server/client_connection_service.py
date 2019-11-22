@@ -60,7 +60,9 @@ class ClientConnectionService:
 
     @user_logged_in
     def post(self, token, message):
-        pass
+        self.curr_account.add_message(message)
+
+        # Relay all messages back to the subscribers
 
     @user_logged_in
     def retrieve(self, token):
