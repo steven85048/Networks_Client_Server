@@ -22,7 +22,6 @@ class RequestHandler:
         try: 
             self._multiplex_request(decoded_payload)
         except MalformedRequestIdentityException as err:
-            
             self.curr_response.append(ServerMessageFactory.invalid_header_identity(str(err)))
             send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
 
@@ -55,7 +54,7 @@ class RequestHandler:
         elif( payload[header_keys['OPCODE']] == opcodes['UNSUBSCRIBE']):
             try:
                 self._handle_unsubscribe(payload)
-                self.curr_response.append(ServerMessageFactory.successful_unsubscribe_ack)
+                self.curr_response.append(ServerMessageFactory.successful_unsubscribe_ack())
             except MalformedRequestHeaderException as err:
                 self.curr_response.append(ServerMessageFactory.failed_unsubscribe_ack(str(err)))
         elif( payload[header_keys['OPCODE']] == opcodes['POST']):

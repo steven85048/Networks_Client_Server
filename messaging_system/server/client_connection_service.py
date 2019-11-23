@@ -55,7 +55,7 @@ class ClientConnectionService:
             raise MalformedRequestHeaderException("Unsubscription error - The provided username does not exist")
 
         if not self.curr_account.remove_subscription(to_unsubscribe_username):
-            raise MalformedRequestHeaderException("Unsubscription error - Cannot unsubscribe from someone you are already subscribed to")
+            raise MalformedRequestHeaderException("Unsubscription error - Cannot unsubscribe from someone you are not already subscribed to")
 
     @user_logged_in
     def post(self, token, message): 

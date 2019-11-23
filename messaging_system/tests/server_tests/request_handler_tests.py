@@ -124,8 +124,58 @@ class RequestHandlerTests(unittest.TestCase):
                          self.request_handler.curr_response[0][header_keys['ERROR_MESSAGE']])
         self.assertEqual(self.request_handler.curr_response[0][header_keys['OPCODE']], opcodes['FAILED_SUBSCRIBE_ACK'])
 
-        print("inv subscribe: {}".format(self.request_handler.curr_response[0][header_keys['ERROR_MESSAGE']]))
+    def test_invalid_unsubscribe_not_exist(self):
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGIN'],
+                              header_keys['USERNAME'] : 'ac1',
+                              header_keys['PASSWORD'] : 'pass1'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
 
+        token_val = self.request_handler.curr_response[0][header_keys["TOKEN"]]
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['SUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val,
+                              header_keys['SUBSCRIBE_USERNAME'] : 'ac2'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['UNSUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val,
+                              header_keys['UNSUBSCRIBE_USERNAME'] : 'ac3'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        self.assertEqual("Request provided is malformed -- Error is: Unsubscription error - Cannot unsubscribe from someone you are not already subscribed to",
+                          self.request_handler.curr_response[0][header_keys['ERROR_MESSAGE']] )
+        self.assertEqual(self.request_handler.curr_response[0][header_keys['OPCODE']], opcodes['FAILED_UNSUBSCRIBE_ACK'])
+        print("inv unsubscribe: {}".format(self.request_handler.curr_response[0][header_keys['ERROR_MESSAGE']]))
+
+    def test_valid_unsubscribe(self):
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGIN'],
+                              header_keys['USERNAME'] : 'ac1',
+                              header_keys['PASSWORD'] : 'pass1'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        token_val = self.request_handler.curr_response[0][header_keys["TOKEN"]]
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['SUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val,
+                              header_keys['SUBSCRIBE_USERNAME'] : 'ac2'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['UNSUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val,
+                              header_keys['UNSUBSCRIBE_USERNAME'] : 'ac2'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        self.assertEqual(self.request_handler.curr_response[0][header_keys['OPCODE']], opcodes['SUCCESSFUL_UNSUBSCRIBE_ACK'])
 
 if __name__ == '__main__':
     unittest.main()
