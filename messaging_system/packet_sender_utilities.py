@@ -3,13 +3,20 @@
 import json
 import socket
 
-def send_packet(payloads, ip_addr, port):
+# Each element in payloads is a tuple that contains
+# (a) The json object with the payload
+# (b) The two-tuple with (ip_addr, port)
+def send_packet(payloads):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     for payload in payloads:
         # Convert string if json type
-        if type(payload) is dict:
-            payload = json.dumps(payload)
-        sock.sendto(payload.encode(), (ip_addr, port))
+        if type(payload[0]) is dict:
+            temp_payload = json.dumps(payload[0])
+
+        ip_addr = payload[1][0]
+        port = payload[1][1]
+
+        sock.sendto(temp_payload.encode(), (ip_addr, port))
 
     sock.close()
