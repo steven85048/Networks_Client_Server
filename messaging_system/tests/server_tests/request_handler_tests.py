@@ -244,9 +244,87 @@ class RequestHandlerTests(unittest.TestCase):
         self.assertEqual(self.request_handler.curr_response[1][0][header_keys['MESSAGE']], post_message)
         self.assertEqual(self.request_handler.curr_response[1][0][header_keys['FROM_USERNAME']], 'ac2')
 
-        # print(self.request_handler.curr_response)
-        # print("inv unsubscribe: {}".format(self.request_handler.curr_response[0][0][header_keys['ERROR_MESSAGE']]))
+    def test_retrieve(self):
+        # Login users ac1 and ac2
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGIN'],
+                              header_keys['USERNAME'] : 'ac1',
+                              header_keys['PASSWORD'] : 'pass1'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
 
+        token_val_1 = self.request_handler.curr_response[0][0][header_keys["TOKEN"]]
+        
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGIN'],
+                              header_keys['USERNAME'] : 'ac2',
+                              header_keys['PASSWORD'] : 'pass2'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        token_val_2 = self.request_handler.curr_response[0][0][header_keys["TOKEN"]]
+
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGIN'],
+                              header_keys['USERNAME'] : 'ac3',
+                              header_keys['PASSWORD'] : 'pass3'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        token_val_3 = self.request_handler.curr_response[0][0][header_keys["TOKEN"]]
+        
+        # Have user ac3 subscribe to user ac1
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['SUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val_3,
+                              header_keys['SUBSCRIBE_USERNAME'] : 'ac1'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        # Have user ac3 subscribe to user ac2
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['SUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val_3,
+                              header_keys['SUBSCRIBE_USERNAME'] : 'ac2'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        # Have user ac1 post a message
+        message_1 = "hello_from_1"
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['POST'],
+                              header_keys['TOKEN'] : token_val_1,
+                              header_keys['MESSAGE'] : message_1}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        # Have user ac2 post a message
+        message_2 = "hello_from_2"
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['POST'],
+                              header_keys['TOKEN'] : token_val_2,
+                              header_keys['MESSAGE'] : message_2}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        # Have user ac3 get the two previous messages with a retrieve
+        num_retrieve = 3
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['RETRIEVE'],
+                              header_keys['TOKEN'] : token_val_3,
+                              header_keys['NUM_MESSAGES'] : num_retrieve}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['OPCODE']], opcodes['RETRIEVE_ACK'])
+        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['OPCODE']], opcodes['RETRIEVE_ACK'])
+        self.assertEqual(self.request_handler.curr_response[2][0][header_keys['OPCODE']], opcodes['END_OF_RETRIEVE_ACK'])
+
+        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['MESSAGE']], message_1)
+        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['MESSAGE']], message_2)
+
+        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['FROM_USERNAME']], 'ac1')
+        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['FROM_USERNAME']], 'ac2')
 
 if __name__ == '__main__':
     unittest.main()

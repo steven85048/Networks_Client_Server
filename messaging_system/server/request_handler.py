@@ -63,7 +63,9 @@ class RequestHandler:
                 self.curr_response.append((ServerMessageFactory.successful_post_ack(), self.curr_addr))
             
                 for subscriber_token in message_details['SUBSCRIBER_TOKENS']:
-                    self.curr_response.append((ServerMessageFactory.forward(message_details['FROM_USERNAME'], message_details['FORWARD_MESSAGE']), (subscriber_token['client_addr']['ip_addr'], subscriber_token['client_addr']['port'])))
+                    self.curr_response.append((ServerMessageFactory.forward(message_details['FROM_USERNAME'], 
+                                                                            message_details['FORWARD_MESSAGE']), 
+                                              (subscriber_token['client_addr']['ip_addr'], subscriber_token['client_addr']['port'])))
             
             except MalformedRequestHeaderException as err:
                 self.curr_response.append((ServerMessageFactory.failed_post_ack(str(err)), self.curr_addr))
@@ -74,7 +76,15 @@ class RequestHandler:
                 pass
         elif( payload[header_keys['OPCODE']] == opcodes['RETRIEVE']):
             try: 
-                self._handle_retrieve(payload)
+                messages_to_send = self._handle_retrieve(payload)
+                for message_to_send in messages_to_send:
+                    message = message_to_send[0]
+                    from_username = message_to_send[1]
+                    self.curr_response.append((ServerMessageFactory.retrieve_ack(from_username, message), self.curr_addr))
+            
+                # Send by end of retrieve ACK after sending all messages
+                self.curr_response.append((ServerMessageFactory.end_of_retrieve_ack(), self.curr_addr))
+
             except MalformedRequestHeaderException as err:
                 pass
         elif( payload[header_keys['OPCODE']] == opcodes['LOGOUT'] ):
@@ -128,6 +138,10 @@ class RequestHandler:
 
         self.client_connection_service.unsubscribe(payload[header_keys['TOKEN']], payload[header_keys['UNSUBSCRIBE_USERNAME']])
 
+    #@return message_details - dict of three elements
+    # SUBSCRIBER_TOKENS - array of tokens corresponding to who the message should be forwarded to
+    # FROM_USERNAME - the username from which the message was sent
+    # FORWARD_MESSAGE - the message to be forwarded
     @validate_token_exists
     def _handle_post(self, payload):
         if( not header_keys['MESSAGE'] in payload):
@@ -143,12 +157,15 @@ class RequestHandler:
     def _handle_forward_ack(self, payload):
         pass
 
+    #@return messages_to_send - array of a two tuple with ( message, from_username )
+    # Essentially returns the set of messages retrieved
     @validate_token_exists
     def _handle_retrieve(self, payload):
         if( not header_keys['NUM_MESSAGES'] in payload):
             raise MalformedRequestHeaderException("Missing number of message in RETRIEVE request")
 
-        self.client_connection_service.retrieve(payload[header_keys['TOKEN']], payload[header_keys['NUM_MESSAGES']])
+        messages_to_send = self.client_connection_service.retrieve(payload[header_keys['TOKEN']], payload[header_keys['NUM_MESSAGES']])
+        return messages_to_send
 
     @validate_token_exists
     def _handle_logout(self, payload):
