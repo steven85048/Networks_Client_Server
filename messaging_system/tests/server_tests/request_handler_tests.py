@@ -242,6 +242,7 @@ class RequestHandlerTests(unittest.TestCase):
         self.assertEqual(self.request_handler.curr_response[0][0][header_keys['OPCODE']], opcodes['SUCCESSFUL_POST_ACK'])
         self.assertEqual(self.request_handler.curr_response[1][0][header_keys['OPCODE']], opcodes['FORWARD'])
         self.assertEqual(self.request_handler.curr_response[1][0][header_keys['MESSAGE']], post_message)
+        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['FROM_USERNAME']], 'ac2')
 
         # print(self.request_handler.curr_response)
         # print("inv unsubscribe: {}".format(self.request_handler.curr_response[0][0][header_keys['ERROR_MESSAGE']]))

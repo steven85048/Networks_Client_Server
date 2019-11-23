@@ -75,7 +75,7 @@ class ServerMessageFactory:
     def forward(source_username, message):
         header = ServerMessageFactory.create_base_request()
         header[header_keys['OPCODE']] = opcodes['FORWARD']
-        header[header_keys['USERNAME']] = source_username
+        header[header_keys['FROM_USERNAME']] = source_username
         header[header_keys['MESSAGE']] = message
         return header
 

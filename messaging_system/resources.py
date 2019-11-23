@@ -36,6 +36,7 @@ header_keys = dict(
     MESSAGE = 'message',
     USERNAME = 'username',
     PASSWORD = 'password',
+    FROM_USERNAME = 'from_username',
     TOKEN = 'token',
     NUM_MESSAGES = 'num_messages'
 )

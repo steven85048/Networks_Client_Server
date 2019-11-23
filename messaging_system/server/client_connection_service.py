@@ -60,11 +60,12 @@ class ClientConnectionService:
     @user_logged_in
     def post(self, token, message): 
         # Relay all messages back to the subscribers
-        subscriber_tokens = self.client_accounts_service.add_message_to_subscribers(self.curr_account.get_username(), message)
         from_username = self.curr_account.get_username()
+        subscriber_tokens = self.client_accounts_service.add_message_to_subscribers(self.curr_account.get_username(), message, from_username)
         
         return subscriber_tokens, from_username
 
+    # @return array of messages
     @user_logged_in
     def retrieve(self, token, num_messages):
         return self.curr_account.get_messages( num_messages )

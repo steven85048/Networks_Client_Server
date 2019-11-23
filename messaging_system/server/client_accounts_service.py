@@ -42,11 +42,11 @@ class ClientAccountsService:
         return None
 
     # @return - array of tokens of subscribers of the message
-    def add_message_to_subscribers(self, sender_username, message):
+    def add_message_to_subscribers(self, sender_username, message, from_username):
         subscriber_tokens = []
         for account in self.client_accounts:
             if sender_username in account.subscriptions:
-                account.add_message(message)
+                account.add_message(( message, from_username ))
                 if( account.is_token_valid() ):
                     subscriber_tokens.append( account.get_token() )
 
