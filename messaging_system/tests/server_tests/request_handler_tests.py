@@ -49,6 +49,32 @@ class RequestHandlerTests(unittest.TestCase):
 
         self.assertEqual(self.request_handler.curr_response[0][header_keys['OPCODE']], opcodes['SUCCESSFUL_LOGIN_ACK'])
 
+    def test_valid_logout(self):
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGIN'],
+                              header_keys['USERNAME'] : 'ac1',
+                              header_keys['PASSWORD'] : 'pass1'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        token_val = self.request_handler.curr_response[0][header_keys["TOKEN"]]
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['LOGOUT'],
+                              header_keys['TOKEN'] : token_val}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        self.assertEqual(self.request_handler.curr_response[0][header_keys['OPCODE']], opcodes['LOGOUT_ACK'])
+
+        payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
+                              header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
+                              header_keys['OPCODE'] : opcodes['SUBSCRIBE'],
+                              header_keys['TOKEN'] : token_val,
+                              header_keys['SUBSCRIBE_USERNAME'] : 'ac2'}).encode()
+        self.request_handler.handle_request(payload, self.dummy_addr)
+
+        self.assertEqual(self.request_handler.curr_response[0][header_keys['OPCODE']], opcodes['MUST_LOGIN_FIRST_ERROR'])
+
     def missing_token_error(self):
         payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
                               header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,

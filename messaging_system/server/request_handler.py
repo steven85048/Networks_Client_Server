@@ -75,6 +75,7 @@ class RequestHandler:
         elif( payload[header_keys['OPCODE']] == opcodes['LOGOUT'] ):
             try: 
                 self._handle_logout(payload)
+                self.curr_response.append(ServerMessageFactory.logout_ack())
             except MalformedRequestHeaderException as err:   
                 pass
         else:
@@ -94,7 +95,6 @@ class RequestHandler:
                 self.curr_response.append(ServerMessageFactory.must_login_first_error(str(err)))
                 send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
             except MalformedRequestHeaderException as err:
-                
                 raise
 
         return validate
