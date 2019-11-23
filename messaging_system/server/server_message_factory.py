@@ -11,6 +11,12 @@ class ServerMessageFactory:
         header[header_keys['ERROR_MESSAGE']] = error_message
 
     @staticmethod
+    def must_login_first_error(error_message):
+        header = ServerMessageFactory.create_base_request()
+        header[header_keys['OPCODE']] = opcodes['MUST_LOGIN_FIRST_ERROR'] 
+        header[header_keys['ERROR_MESSAGE']] = error_message
+
+    @staticmethod
     def successful_login_ack(token_val):
         header = ServerMessageFactory.create_base_request()
         header[header_keys['OPCODE']] = opcodes['SUCCESSFUL_LOGIN_ACK']

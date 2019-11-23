@@ -59,6 +59,7 @@ class RequestHandler:
             try: 
                 self._handle_post(payload)
             except Exception as err:
+                print(err)
                 response = ServerMessageFactory.failed_post_ack(str(err))
         elif( payload.opcode == opcodes['FORWARD_ACK']):
             try: 
@@ -87,7 +88,8 @@ class RequestHandler:
                 func(self, payload)
             except InvalidTokenException as err:
                 # Send must-login-first-error
-                pass
+                print(err)
+                response = ServerMessageFactory.must_login_first_error(str(err))
             except Exception as err:
                 print(err)
                 raise
