@@ -1,7 +1,7 @@
+import unittest
+
 from messaging_system.server.client_connection_service import ClientConnectionService
 from messaging_system.server.exceptions import MalformedTokenException, InvalidTokenException
-
-import unittest
 
 class ClientConnectionServiceTests(unittest.TestCase):
     def setUp(self):
