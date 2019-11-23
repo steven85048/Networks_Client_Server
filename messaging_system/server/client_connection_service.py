@@ -2,7 +2,7 @@
 # depending on the message
 
 from messaging_system.server.client_account import ClientAccount
-from messaging_system.server.exceptions import MalformedTokenException, InvalidTokenException
+from messaging_system.server.exceptions import InvalidTokenException, MalformedRequestHeaderException
 from messaging_system.server.client_accounts_service import ClientAccountsService
 
 class ClientConnectionService:
@@ -15,9 +15,6 @@ class ClientConnectionService:
     def user_logged_in(func):
         def validate_token(self, user_token, *args):
             self.curr_account = None
-
-            if( not( type(user_token) is dict and 'token_val' in user_token and 'time' in user_token ) ):
-                raise MalformedTokenException(user_token)
 
             account = self._get_user_from_token(user_token)
 
@@ -41,11 +38,24 @@ class ClientConnectionService:
 
     @user_logged_in
     def subscribe(self, token, to_subscribe_username):
-        self.curr_account.add_subscription(to_subscribe_username)
+        # Test subscribe username correct
+        if not self.client_accounts_service.username_exists(to_subscribe_username):
+            raise MalformedRequestHeaderException("Subscription error - The provided username does not exist")
+
+        if to_subscribe_username == self.curr_account.get_username():
+            raise MalformedRequestHeaderException("Subscription error - Cannot subscribe to yourself")
+
+        if not self.curr_account.add_subscription(to_subscribe_username):
+            raise MalformedRequestHeaderException("Subscription error - Already subscribed to this user")
 
     @user_logged_in
     def unsubscribe(self, token, to_unsubscribe_username):
-        self.curr_account.remove_subscription(to_unsubscribe_username)
+        # Test unsubscribe username correct
+        if not self.client_accounts_service.username_exists(to_unsubscribe_username):
+            raise MalformedRequestHeaderException("Unsubscription error - The provided username does not exist")
+
+        if not self.curr_account.remove_subscription(to_unsubscribe_username):
+            raise MalformedRequestHeaderException("Unsubscription error - Cannot unsubscribe from someone you are already subscribed to")
 
     @user_logged_in
     def post(self, token, message): 

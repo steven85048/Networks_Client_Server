@@ -14,7 +14,7 @@ class RequestHandler:
     def handle_request(self, data, addr):
         # The input comes in as a json string encoded as bytes, so we decode it and deserialize the json from a string
         decoded_payload = json.loads( data.decode() )
-        print(decoded_payload)
+        #print(decoded_payload)
 
         self.curr_response = []
         self.curr_addr = addr
@@ -22,7 +22,7 @@ class RequestHandler:
         try: 
             self._multiplex_request(decoded_payload)
         except MalformedRequestIdentityException as err:
-            print(err)
+            
             self.curr_response.append(ServerMessageFactory.invalid_header_identity(str(err)))
             send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
 
@@ -42,47 +42,44 @@ class RequestHandler:
 
         if( payload[header_keys['OPCODE']] == opcodes['LOGIN'] ):
             try:
-                user_token = self._handle_login(payload, self.curr_addr)
+                user_token = self._handle_login(payload, self.curr_addr)       
                 self.curr_response.append(ServerMessageFactory.successful_login_ack(user_token['token_val']))
-            except Exception as err:
-                print(err)
+            except MalformedRequestHeaderException as err:
                 self.curr_response.append(ServerMessageFactory.failed_login_ack(str(err)))
-        elif( payload.opcode == opcodes['SUBSCRIBE']):
+        elif( payload[header_keys['OPCODE']] == opcodes['SUBSCRIBE']):
             try: 
                 self._handle_subscribe(payload)
-            except Exception as err:
-                print(err)
+                self.curr_response.append(ServerMessageFactory.successful_subscribe_ack())
+            except MalformedRequestHeaderException as err: 
                 self.curr_response.append(ServerMessageFactory.failed_subscribe_ack(str(err)))
-                send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
-        elif( payload.opcode == opcodes['UNSUBSCRIBE']):
+        elif( payload[header_keys['OPCODE']] == opcodes['UNSUBSCRIBE']):
             try:
                 self._handle_unsubscribe(payload)
-            except Exception as err:
-                print(err)
-        elif( payload.opcode == opcodes['POST']):
+                self.curr_response.append(ServerMessageFactory.successful_unsubscribe_ack)
+            except MalformedRequestHeaderException as err:
+                self.curr_response.append(ServerMessageFactory.failed_unsubscribe_ack(str(err)))
+        elif( payload[header_keys['OPCODE']] == opcodes['POST']):
             try: 
                 self._handle_post(payload)
-            except Exception as err:
-                print(err)
+            except MalformedRequestHeaderException as err:
                 self.curr_response.append(ServerMessageFactory.failed_post_ack(str(err)))
-                send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
-        elif( payload.opcode == opcodes['FORWARD_ACK']):
+        elif( payload[header_keys['OPCODE']] == opcodes['FORWARD_ACK']):
             try: 
                 self._handle_forward_ack(payload)
-            except Exception as err:
-                print(err)
-        elif( payload.opcode == opcodes['RETRIEVE']):
+            except MalformedRequestHeaderException as err:
+                pass
+        elif( payload[header_keys['OPCODE']] == opcodes['RETRIEVE']):
             try: 
                 self._handle_retrieve(payload)
-            except Exception as err:
-                print(err)
-        elif( payload.opcode == opcodes['LOGOUT'] ):
+            except MalformedRequestHeaderException as err:
+                pass
+        elif( payload[header_keys['OPCODE']] == opcodes['LOGOUT'] ):
             try: 
                 self._handle_logout(payload)
-            except Exception as err:
-                print(err)
+            except MalformedRequestHeaderException as err:   
+                pass
         else:
-            raise MalformedRequestIdentityException("Opcode {payload.opcode} is invalid")
+            raise MalformedRequestIdentityException("Opcode {payload[header_keys['OPCODE']]} is invalid")
         
         send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
 
@@ -95,11 +92,10 @@ class RequestHandler:
                 func(self, payload)
             except InvalidTokenException as err:
                 # Send must-login-first-error
-                print(err)
                 self.curr_response.append(ServerMessageFactory.must_login_first_error(str(err)))
                 send_packet(self.curr_response, self.curr_addr[0], self.curr_addr[1])
-            except Exception as err:
-                print(err)
+            except MalformedRequestHeaderException as err:
+                
                 raise
 
         return validate

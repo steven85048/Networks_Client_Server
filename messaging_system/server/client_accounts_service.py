@@ -15,7 +15,7 @@ class ClientAccountsService:
     def get_user_from_token(self, token):
         for account in self.client_accounts:
             account_token = account.get_token()
-            if( not account_token is None and account_token['token_val'] == token['token_val'] ):
+            if( not account_token is None and account_token['token_val'] == token ):
                 return account
                 
         return None
@@ -26,6 +26,13 @@ class ClientAccountsService:
                 return account
 
         return None
+
+    def username_exists(self, username):
+        for account in self.client_accounts:
+            if( account.username == username ):
+                return True
+
+        return False
 
     def login(self, username, password, addr):
         for account in self.client_accounts:

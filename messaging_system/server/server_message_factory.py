@@ -46,6 +46,19 @@ class ServerMessageFactory:
         return header
 
     @staticmethod
+    def successful_unsubscribe_ack():
+        header = ServerMessageFactory.create_base_request()
+        header[header_keys['OPCODE']] = opcodes['SUCCESSFUL_UNSUBSCRIBE_ACK']
+        return header
+
+    @staticmethod
+    def failed_unsubscribe_ack(error_message):
+        header = ServerMessageFactory.create_base_request()
+        header[header_keys['OPCODE']] = opcodes['FAILED_UNSUBSCRIBE_ACK']
+        header[header_keys['ERROR_MESSAGE']] = error_message
+        return header
+
+    @staticmethod
     def successful_post_ack():
         header = ServerMessageFactory.create_base_request()
         header[header_keys['OPCODE']] = opcodes['SUCCESSFUL_POST_ACK']

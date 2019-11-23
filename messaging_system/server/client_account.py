@@ -20,10 +20,18 @@ class ClientAccount:
         self.messages.append(message)
 
     def add_subscription(self, subscription):
+        if subscription in self.subscriptions:
+            return False
+
         self.subscriptions.append(subscription)
+        return True
 
     def remove_subscription(self, subscription):
+        if not subscription in self.subscriptions:
+            return False
+
         self.subscriptions.remove(subscription)
+        return True
 
     def get_token(self):
         return self.token

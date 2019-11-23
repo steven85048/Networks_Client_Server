@@ -1,7 +1,7 @@
 import unittest
 
 from messaging_system.server.client_connection_service import ClientConnectionService
-from messaging_system.server.exceptions import MalformedTokenException, InvalidTokenException
+from messaging_system.server.exceptions import InvalidTokenException
 
 class ClientConnectionServiceTests(unittest.TestCase):
     def setUp(self):
@@ -24,18 +24,6 @@ class ClientConnectionServiceTests(unittest.TestCase):
 
         token = self.connection_service.login('ac1', 'wrong_pass', addr)
         self.assertTrue(token is None)
-
-    def test_malformed_token_1(self):
-        token = 'bad-token'
-
-        with self.assertRaises(MalformedTokenException):
-            self.connection_service.retrieve(token, 2)
-
-    def test_malformed_token_2(self):
-        token = {'token_val' : 'asdf', 'testt' : 'sup'}
-
-        with self.assertRaises(MalformedTokenException):
-            self.connection_service.retrieve(token, 3)
 
     def test_get_user_from_token(self):
         addr = ('127.0.0.1', 2000)

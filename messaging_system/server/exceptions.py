@@ -9,11 +9,6 @@ class MalformedRequestIdentityException(Exception):
     def __init__(self, err_message):
         Exception.__init__(self, "Request Header Identity Incorrect: {err_message}".format(err_message=err_message))
 
-# If a token does not have the correct structure
-class MalformedTokenException(Exception):
-    def __init__(self, token):
-        Exception.__init__(self, "Token provided in a malformed format: {token}".format(token = token))
-
 # If a request does not have valid parameters
 class MalformedRequestHeaderException(Exception):
     def __init__(self, err_message):
