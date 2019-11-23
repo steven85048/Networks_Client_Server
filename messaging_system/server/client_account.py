@@ -39,6 +39,9 @@ class ClientAccount:
     def get_username(self):
         return self.username
 
+    def logout(self):
+        self.token = None
+
     def get_messages(self, num_messages):
         num_messages = min(len(self.messages), num_messages)
         return self.messages[-num_messages:]

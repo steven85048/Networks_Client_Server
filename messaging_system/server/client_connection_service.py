@@ -34,7 +34,7 @@ class ClientConnectionService:
 
     @user_logged_in
     def logout(self, token):
-        self.curr_account.token = None
+        self.curr_account.logout()
 
     @user_logged_in
     def subscribe(self, token, to_subscribe_username):
@@ -61,7 +61,9 @@ class ClientConnectionService:
     def post(self, token, message): 
         # Relay all messages back to the subscribers
         subscriber_tokens = self.client_accounts_service.add_message_to_subscribers(self.curr_account.get_username(), message)
-        return subscriber_tokens
+        from_username = self.curr_account.get_username()
+        
+        return subscriber_tokens, from_username
 
     @user_logged_in
     def retrieve(self, token, num_messages):

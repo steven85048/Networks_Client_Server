@@ -59,8 +59,12 @@ class RequestHandler:
                 self.curr_response.append((ServerMessageFactory.failed_unsubscribe_ack(str(err)), self.curr_addr))
         elif( payload[header_keys['OPCODE']] == opcodes['POST']):
             try: 
-                subscriber_tokens, forward_message = self._handle_post(payload)
+                message_details = self._handle_post(payload)
                 self.curr_response.append((ServerMessageFactory.successful_post_ack(), self.curr_addr))
+            
+                for subscriber_token in message_details['SUBSCRIBER_TOKENS']:
+                    self.curr_response.append((ServerMessageFactory.forward(message_details['FROM_USERNAME'], message_details['FORWARD_MESSAGE']), (subscriber_token['client_addr']['ip_addr'], subscriber_token['client_addr']['port'])))
+            
             except MalformedRequestHeaderException as err:
                 self.curr_response.append((ServerMessageFactory.failed_post_ack(str(err)), self.curr_addr))
         elif( payload[header_keys['OPCODE']] == opcodes['FORWARD_ACK']):
@@ -90,7 +94,7 @@ class RequestHandler:
                 # Special case for login, since token is not set of course
                 if( not func.__name__ == '_handle_login' and not 'token' in payload):
                     raise MalformedRequestHeaderException("Token missing from request")
-                func(self, payload)
+                return func(self, payload)
             except InvalidTokenException as err:
                 # Send must-login-first-error
                 self.curr_response.append((ServerMessageFactory.must_login_first_error(str(err)), self.curr_addr))
@@ -129,10 +133,11 @@ class RequestHandler:
         if( not header_keys['MESSAGE'] in payload):
             raise MalformedRequestHeaderException("Missing message in POST request")
 
-        subscriber_tokens = self.client_connection_service.post(payload[header_keys['TOKEN']], payload[header_keys['MESSAGE']])
+        subscriber_tokens, from_username = self.client_connection_service.post(payload[header_keys['TOKEN']], payload[header_keys['MESSAGE']])
         forward_message = payload[header_keys['MESSAGE']]
 
-        return subscriber_tokens, forward_message
+        message_details = dict( SUBSCRIBER_TOKENS = subscriber_tokens, FROM_USERNAME = from_username, FORWARD_MESSAGE = forward_message )
+        return message_details
 
     @validate_token_exists
     def _handle_forward_ack(self, payload):
