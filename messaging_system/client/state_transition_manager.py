@@ -11,12 +11,13 @@ class StateTransitionManager:
         self.curr_state = None
         self.state_lock = Lock()
 
-    def transition_to_state(self, state):
+    def transition_to_state(self, state ):
         with self.state_lock:
             if( not self.curr_state is None and not self.curr_state.transition_permitted(state) ):
                 raise Exception("Invalid state change")
 
             self.curr_state = state
+            self.curr_state.start_state()
 
     def process_response(self, response):
         with self.state_lock:

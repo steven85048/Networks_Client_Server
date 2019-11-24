@@ -18,3 +18,7 @@ class ClientSetup:
         while( True ):
             user_input = input()
             self.input_handler.handle_input(user_input)
+
+    def recv_from_server(self):
+        while( True ):
+            
