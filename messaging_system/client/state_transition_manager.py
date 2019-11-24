@@ -13,7 +13,7 @@ class StateTransitionManager:
 
     def transition_to_state(self, state ):
         with self.state_lock:
-            if( not self.curr_state is None and not self.curr_state.transition_permitted(state) ):
+            if( not self.curr_state is None and not self.curr_state.state_transition_permitted() ):
                 raise Exception("Invalid state change")
 
             self.curr_state = state

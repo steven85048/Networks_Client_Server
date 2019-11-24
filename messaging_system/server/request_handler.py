@@ -14,7 +14,6 @@ class RequestHandler:
     def handle_request(self, data, addr):
         # The input comes in as a json string encoded as bytes, so we decode it and deserialize the json from a string
         decoded_payload = json.loads( data.decode() )
-        #print(decoded_payload)
 
         self.curr_response = []
         self.curr_addr = addr

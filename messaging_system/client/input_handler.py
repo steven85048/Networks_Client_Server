@@ -29,7 +29,11 @@ class InputHandler:
         password = auth_split[1]
 
         login_state = LoginState(username, password)
-        self.state_transition_manager.transition_to_state(login_state)
+
+        try:
+            self.state_transition_manager.transition_to_state(login_state)
+        except Exception as err:
+            print(err)
 
     def _handle_subscribe(self, user_input):
         pass

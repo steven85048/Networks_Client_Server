@@ -14,7 +14,7 @@ class ClientSetup:
         self.state_transition_manager = StateTransitionManager()
 
         self.input_handler = InputHandler(self.state_transition_manager)
-        self.response_handler = ResponseHandler(self.server_response_thread)
+        self.response_handler = ResponseHandler(self.state_transition_manager)
 
         self.sock = socket.socket(socket.AF_INET,
                                   socket.SOCK_DGRAM)
