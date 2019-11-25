@@ -43,6 +43,9 @@ class ClientAccount:
         self.token = None
 
     def get_messages(self, num_messages):
+        if( isinstance(num_messages, str)):
+            num_messages = int(num_messages)
+
         num_messages = min(len(self.messages), num_messages)
         return self.messages[-num_messages:]
 

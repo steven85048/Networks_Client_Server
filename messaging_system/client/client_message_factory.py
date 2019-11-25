@@ -10,9 +10,10 @@ class ClientMessageFactory():
         return header
 
     @staticmethod
-    def logout():
+    def logout(token):
         header = ClientMessageFactory._create_base_request()
         header[header_keys['OPCODE']] = opcodes['LOGOUT']
+        header[header_keys['TOKEN']] = token
         return header
 
     @staticmethod
@@ -20,7 +21,7 @@ class ClientMessageFactory():
         header = ClientMessageFactory._create_base_request()
         header[header_keys['OPCODE']] = opcodes['SUBSCRIBE']
         header[header_keys['TOKEN']] = token
-        header[header_keys['FROM_USERNAME']] = from_username
+        header[header_keys['SUBSCRIBE_USERNAME']] = from_username
         return header
 
     @staticmethod
@@ -28,7 +29,7 @@ class ClientMessageFactory():
         header = ClientMessageFactory._create_base_request()
         header[header_keys['OPCODE']] = opcodes['UNSUBSCRIBE']
         header[header_keys['TOKEN']] = token
-        header[header_keys['FROM_USERNAME']] = from_username
+        header[header_keys['UNSUBSCRIBE_USERNAME']] = from_username
         return header
 
     @staticmethod

@@ -14,6 +14,7 @@ class RequestHandler:
     def handle_request(self, data, addr):
         # The input comes in as a json string encoded as bytes, so we decode it and deserialize the json from a string
         decoded_payload = json.loads( data.decode() )
+        print("Received payload: {}".format(decoded_payload))
 
         self.curr_response = []
         self.curr_addr = addr
@@ -22,7 +23,7 @@ class RequestHandler:
             self._multiplex_request(decoded_payload)
         except MalformedRequestIdentityException as err:
             self.curr_response.append((ServerMessageFactory.invalid_header_identity(str(err)), self.curr_addr))
-            send_packet(self.curr_response)
+            send_packet(self.curr_response)            
 
     # Depending on the opcode, handle the request in a different manner
     def _multiplex_request(self, payload):
@@ -103,12 +104,14 @@ class RequestHandler:
                 # Special case for login, since token is not set of course
                 if( not func.__name__ == '_handle_login' and not 'token' in payload):
                     raise MalformedRequestHeaderException("Token missing from request")
+
                 return func(self, payload)
             except InvalidTokenException as err:
                 # Send must-login-first-error
                 self.curr_response.append((ServerMessageFactory.must_login_first_error(str(err)), self.curr_addr))
                 send_packet(self.curr_response)
             except MalformedRequestHeaderException as err:
+                print(err)
                 raise
 
         return validate

@@ -10,7 +10,7 @@ class LogoutState(ClientState):
         super().__init__()
 
     def start_state(self):
-        payload = ClientMessageFactory.logout()
+        payload = ClientMessageFactory.logout(messaging_system.client.token_holder.token)
         self.curr_request.append((payload, (server_config['SERVER_IP_ADDR'], server_config['UDP_PORT'])))
         super().start_state()
 

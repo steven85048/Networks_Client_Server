@@ -5,6 +5,7 @@ from messaging_system.client.config import client_config
 from messaging_system.client.input_handler import InputHandler
 from messaging_system.client.response_handler import ResponseHandler
 from messaging_system.client.state_transition_manager import StateTransitionManager
+import messaging_system.socket_holder
 
 class ClientSetup:
     def __init__(self):
@@ -19,6 +20,8 @@ class ClientSetup:
         self.sock = socket.socket(socket.AF_INET,
                                   socket.SOCK_DGRAM)
         self.sock.bind((self.udp_ip, self.port))
+
+        messaging_system.socket_holder.socket = self.sock
 
     # Starts two threads:
     # (a) User_input_thread continually listens for user input and handles
