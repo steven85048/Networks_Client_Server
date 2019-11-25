@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 from messaging_system.packet_sender_utilities import send_packet
 from messaging_system.resources import header_keys, MAGIC_NUMBER_1, MAGIC_NUMBER_2
+from messaging_system.client.exceptions import MalformedRequestException
 
 class ClientState(ABC):
 
@@ -26,7 +27,7 @@ class ClientState(ABC):
             or not header_keys['MAGIC_NUM_2'] in response 
             or response[header_keys['MAGIC_NUM_1']] != MAGIC_NUMBER_1
             or response[header_keys['MAGIC_NUM_2']] != MAGIC_NUMBER_2 ):
-            raise Exception("Magic Numbers Set Incorrectly")
+            raise MalformedRequestException("Magic Numbers Set Incorrectly")
 
         if( not header_keys['OPCODE'] in response ):
-            raise Exception("Missing OPCODE in response")
+            raise MalformedRequestException("Missing OPCODE in response")

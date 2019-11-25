@@ -1,6 +1,7 @@
 # Multiplexes the user_input into the correct sublogic
 
 from messaging_system.client.state_handler.login_state import LoginState
+from messaging_system.client.exceptions import MalformedUserInputException
 
 class InputHandler:
     def __init__(self, state_transition_manager):
@@ -32,7 +33,7 @@ class InputHandler:
 
         try:
             self.state_transition_manager.transition_to_state(login_state)
-        except Exception as err:
+        except MalformedUserInputException as err:
             print(err)
 
     def _handle_subscribe(self, user_input):

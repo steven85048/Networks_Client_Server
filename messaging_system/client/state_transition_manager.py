@@ -6,6 +6,8 @@
 
 from threading import Lock
 
+from messaging_system.client.exceptions import MalformedRequestException
+
 class StateTransitionManager:
     def __init__(self):
         self.curr_state = None
@@ -14,7 +16,7 @@ class StateTransitionManager:
     def transition_to_state(self, state ):
         with self.state_lock:
             if( not self.curr_state is None and not self.curr_state.state_transition_permitted() ):
-                raise Exception("Invalid state change")
+                raise MalformedRequestException("Invalid state change")
 
             self.curr_state = state
             self.curr_state.start_state()
@@ -22,7 +24,7 @@ class StateTransitionManager:
     def process_response(self, response):
         with self.state_lock:
             if( self.curr_state is None ):
-                raise Exception("Cannot process response from an empty state")
+                raise MalformedRequestException("Cannot process response from an empty state")
 
             self.curr_state.process_response(response)
 

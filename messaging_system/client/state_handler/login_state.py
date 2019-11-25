@@ -2,6 +2,7 @@ from messaging_system.server.config import server_config
 from messaging_system.client.client_message_factory import ClientMessageFactory
 from messaging_system.client.state_handler.client_state import ClientState
 from messaging_system.resources import opcodes, header_keys
+from messaging_system.client.exceptions import MalformedRequestException
 
 class LoginState(ClientState):
     def __init__(self, username, password):
@@ -17,16 +18,16 @@ class LoginState(ClientState):
     def process_response(self, response):
         super().process_response(response)
 
-        if( header_keys['OPCODE'] == opcodes['FAILED_LOGIN_ACK'] ):
+        if( response[header_keys['OPCODE']] == opcodes['FAILED_LOGIN_ACK'] ):
             if( header_keys['ERROR_MESSAGE'] in response ):
                 err_message = response[header_keys['ERROR_MESSAGE']]
-            raise Exception("Login Failed from Server: {}".format(err_message))
+            raise MalformedRequestException("Login Failed from Server: {}".format(err_message))
 
-        if( header_keys['OPCODE'] != opcodes['SUCCESSFUL_LOGIN_ACK'] ):
-            raise Exception("LOGIN_ACK expected in response")
+        if( response[header_keys['OPCODE']] != opcodes['SUCCESSFUL_LOGIN_ACK'] ):
+            raise MalformedRequestException("LOGIN_ACK expected in response")
 
         if( not header_keys['TOKEN'] in response ):
-            raise Exception("TOKEN expected in response")
+            raise MalformedRequestException("TOKEN expected in response")
 
         # Get the token and store it for future uses (TODO)
         token = header_keys['TOKEN']
