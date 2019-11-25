@@ -6,4 +6,5 @@ class ResponseHandler:
 
     def handle_response(self, response):
         decoded_payload = json.loads( response.decode() )
+        print(decoded_payload)
         self.state_transition_manager.process_response(decoded_payload)

@@ -30,6 +30,9 @@ class ClientSetup:
         self.server_response_thread = threading.Thread(name = 'server_response_thread', target =  self._server_response_thread, args = ( ) )
         self.server_response_thread.start()
 
+        self.user_input_thread.join()
+        self.server_response_thread.join()
+
     def _user_input_thread(self):
         while( True ):
             user_input = input()
@@ -38,5 +41,5 @@ class ClientSetup:
     def _server_response_thread(self):
         while( True ):
             data, addr = self.sock.recvfrom(client_config['BUFFER_MAX_SIZE'])
-            self.state_transition_manager.process_response(data)
+            self.response_handler.handle_response(data)
             

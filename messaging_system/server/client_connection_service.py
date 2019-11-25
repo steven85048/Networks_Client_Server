@@ -10,6 +10,12 @@ class ClientConnectionService:
         self.curr_account = None
         self.client_accounts_service = ClientAccountsService()
 
+        #Add dummy accounts - REMOVE LATER
+        self.add_account('ac1', 'pass1')
+        self.add_account('ac2', 'pass2')
+        self.add_account('ac3', 'pass3')
+        self.add_account('ac4', 'pass4')
+
     # NOTE that the first parameter of each method with this decorator MUST have the token
     # This decorator also associates the account with the token
     def user_logged_in(func):
