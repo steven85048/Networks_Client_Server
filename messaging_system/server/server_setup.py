@@ -17,15 +17,11 @@ class ServerSetup:
         self.request_handler = RequestHandler( self.client_connection_service )
 
     def initiate_listening_thread(self):
-        # The current server design does not require threading, but keep for later maybe
-        self._listen_receive()
-        
-        #self.listen_thread = threading.Thread(name = 'listen_thread', target =  self.__listen_receive, args = ( ) )
-        #self.listen_thread.start()
+        self.listen_thread = threading.Thread(name = 'listen_thread', target =  self._listen_receive, args = ( ) )
+        self.listen_thread.start()
 
     # Is run on a worker thread; constantly listens for new packets from clients in the background
     def _listen_receive(self):
         while True:
             data, addr = self.sock.recvfrom(server_config['BUFFER_MAX_SIZE'])
             self.request_handler.handle_request(data, addr)
-        
