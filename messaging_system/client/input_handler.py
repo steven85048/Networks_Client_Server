@@ -1,6 +1,7 @@
 # Multiplexes the user_input into the correct sublogic
 
 from messaging_system.client.state_handler.login_state import LoginState
+from messaging_system.client.state_handler.logout_state import LogoutState
 from messaging_system.client.state_handler.subscribe_state import SubscribeState
 from messaging_system.client.state_handler.unsubscribe_state import UnsubscribeState
 from messaging_system.client.state_handler.post_state import PostState
@@ -20,6 +21,8 @@ class InputHandler:
     def _multiplex_input(self, user_input):
         if "login" in user_input:
             self._handle_login(user_input)
+        if "logout" in user_input:
+            self._handle_logout(user_input)
         # order matters ((un)subscribe)
         elif "unsubscribe" in user_input:
             self._handle_unsubscribe(user_input)
@@ -40,6 +43,9 @@ class InputHandler:
         login_state = LoginState(username, password)
         self.state_transition_manager.transition_to_state(login_state)
         
+    def _handle_logout(self, user_input):
+        logout_state = LogoutState()
+        self.state_transition_manager.transition_to_state(logout_state)
 
     def _handle_subscribe(self, user_input):
         subscribe_name = user_input.split('#')[1]

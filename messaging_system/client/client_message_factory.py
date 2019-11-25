@@ -10,6 +10,12 @@ class ClientMessageFactory():
         return header
 
     @staticmethod
+    def logout():
+        header = ClientMessageFactory._create_base_request()
+        header[header_keys['OPCODE']] = opcodes['LOGOUT']
+        return header
+
+    @staticmethod
     def subscribe(token, from_username):
         header = ClientMessageFactory._create_base_request()
         header[header_keys['OPCODE']] = opcodes['SUBSCRIBE']

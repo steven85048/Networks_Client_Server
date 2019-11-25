@@ -52,6 +52,25 @@ class ClientRequestTests(unittest.TestCase):
 
         self.assertTrue("Cannot make that type of request until logged in" in str(err.exception))
 
+    def test_logout(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "logout#"
+        self.input_handler.handle_input(input_2)
+
+        response_2 = ServerMessageFactory.logout_ack()
+        response_2 = json.dumps(response_2).encode()
+        self.response_handler.handle_response(response_2)
+
+        self.assertTrue(self.state_transition_manager.curr_state.state_completed)
+
+
     def test_subscribe(self):
         input = "login#ac1&pass1"
         self.input_handler.handle_input(input)
