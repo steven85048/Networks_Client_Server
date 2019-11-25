@@ -2,6 +2,7 @@
 
 from messaging_system.client.state_handler.login_state import LoginState
 from messaging_system.client.state_handler.subscribe_state import SubscribeState
+from messaging_system.client.state_handler.unsubscribe_state import UnsubscribeState
 from messaging_system.client.state_handler.post_state import PostState
 from messaging_system.client.exceptions import MalformedUserInputException
 
@@ -10,19 +11,23 @@ class InputHandler:
         self.state_transition_manager = state_transition_manager
 
     def handle_input(self, user_input):
-        self._multiplex_input(user_input)
+        try:
+            self._multiplex_input(user_input)
+        except MalformedUserInputException as err:
+            raise
 
     def _multiplex_input(self, user_input):
         if "login" in user_input:
             self._handle_login(user_input)
+        # order matters ((un)subscribe)
+        elif "unsubscribe" in user_input:
+            self._handle_unsubscribe(user_input)
         elif "subscribe" in user_input:
             self._handle_subscribe(user_input)
-        elif "unsubscribe" in user_input:
-            pass
         elif "post" in user_input:
             self._handle_post(user_input)
         elif "retrieve" in user_input:
-            pass
+            self._handle_retrieve(user_input)
 
     def _handle_login(self, user_input):
         op_split = user_input.split('#')[1]
@@ -32,28 +37,26 @@ class InputHandler:
         password = auth_split[1]
 
         login_state = LoginState(username, password)
-
-        try:
-            self.state_transition_manager.transition_to_state(login_state)
-        except MalformedUserInputException as err:
-            print(err)
+        self.state_transition_manager.transition_to_state(login_state)
+        
 
     def _handle_subscribe(self, user_input):
         subscribe_name = user_input.split('#')[1]
-
+        
         subscribe_state = SubscribeState(subscribe_name)
+        self.state_transition_manager.transition_to_state(subscribe_state)
 
-        try:
-            self.state_transition_manager.transition_to_state(subscribe_state)
-        except MalformedUserInputException as err:
-            print(err)
+    def _handle_unsubscribe(self, user_input):
+        unsubscribe_name = user_input.split('#')[1]
+        
+        unsubscribe_state = UnsubscribeState(unsubscribe_name)
+        self.state_transition_manager.transition_to_state(unsubscribe_state)
 
     def _handle_post(self, user_input):
         message = user_input.split('#')[1]
-
+        
         post_state = PostState(message)
+        self.state_transition_manager.transition_to_state(post_state)
 
-        try:
-            self.state_transition_manager.transition_to_state(post_state)
-        except MalformedUserInputException as err:
-            print(err)
+    def _handle_retrieve(self, user_input):
+        pass

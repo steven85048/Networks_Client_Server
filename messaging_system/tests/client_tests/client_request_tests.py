@@ -12,6 +12,7 @@ import unittest
 
 class ClientRequestTests(unittest.TestCase):
     def setUp(self):
+        messaging_system.client.token_holder.token = None
         self.state_transition_manager = StateTransitionManager()
         self.input_handler = InputHandler( self.state_transition_manager )
         self.response_handler = ResponseHandler( self.state_transition_manager )
@@ -85,6 +86,45 @@ class ClientRequestTests(unittest.TestCase):
             self.response_handler.handle_response(response_2)
 
         self.assertTrue("Subscribe Failed from Server" in str(err.exception))
+        self.assertFalse(self.state_transition_manager.curr_state.state_completed)
+
+    def test_unsubscribe(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "unsubscribe#ac2"
+        self.input_handler.handle_input(input_2)
+
+        response_2 = ServerMessageFactory.successful_unsubscribe_ack()
+        response_2 = json.dumps(response_2).encode()
+        self.response_handler.handle_response(response_2)
+
+        self.assertTrue(self.state_transition_manager.curr_state.state_completed)
+
+    def test_server_err_unsubscribe(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "unsubscribe#ac2"
+        self.input_handler.handle_input(input_2)
+
+        response_2 = ServerMessageFactory.failed_unsubscribe_ack("Invalid unsubscribe")
+        response_2 = json.dumps(response_2).encode()
+
+        with self.assertRaises(MalformedRequestException) as err:
+            self.response_handler.handle_response(response_2)
+
+        self.assertTrue("Unsubscribe Failed from Server" in str(err.exception))
         self.assertFalse(self.state_transition_manager.curr_state.state_completed)
 
     def test_post(self):
