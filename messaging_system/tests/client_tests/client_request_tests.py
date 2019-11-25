@@ -29,15 +29,14 @@ class ClientRequestTests(unittest.TestCase):
         self.assertTrue("Login Failed from Server" in str(err.exception))
 
     def test_valid_login(self):
-        input = "login#ac1&wrong_pass"
+        input = "login#ac1&pass1"
         self.input_handler.handle_input(input)
 
         token_number = 324
-
         response = ServerMessageFactory.successful_login_ack(token_number)
         response = json.dumps(response).encode()
-
         self.response_handler.handle_response(response)
+        
         self.assertTrue(self.state_transition_manager.curr_state.state_completed)
         self.assertEqual(messaging_system.client.token_holder.token, token_number)
 
@@ -48,6 +47,45 @@ class ClientRequestTests(unittest.TestCase):
             self.input_handler.handle_input(input)
 
         self.assertTrue("Cannot make that type of request until logged in" in str(err.exception))
+
+    def test_subscribe(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "subscribe#ac2"
+        self.input_handler.handle_input(input_2)
+
+        response_2 = ServerMessageFactory.successful_subscribe_ack()
+        response_2 = json.dumps(response_2).encode()
+        self.response_handler.handle_response(response_2)
+
+        self.assertTrue(self.state_transition_manager.curr_state.state_completed)
+
+    def server_err_subscribe(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "subscribe#ac2"
+        self.input_handler.handle_input(input_2)
+
+        response_2 = ServerMessageFactory.failed_subscribe_ack("Invalid subscribe")
+        response_2 = json.dumps(response_2).encode()
+
+        with self.assertRaises(MalformedRequestException) as err:
+            self.response_handler.handle_response(response_2)
+
+        self.assertTrue("Subscribe Failed from Server" in str(err.exception))
+        self.assertFalse(self.state_transition_manager.curr_state.state_completed)
 
 if __name__ == '__main__':
     unittest.main()
