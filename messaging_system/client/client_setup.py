@@ -1,15 +1,15 @@
 import socket
 import threading
 
-from messaging_system.server.config import server_config
+from messaging_system.client.config import client_config
 from messaging_system.client.input_handler import InputHandler
 from messaging_system.client.response_handler import ResponseHandler
 from messaging_system.client.state_transition_manager import StateTransitionManager
 
 class ClientSetup:
     def __init__(self):
-        self.udp_ip = server_config['SERVER_IP_ADDR']
-        self.port = server_config['UDP_PORT']
+        self.udp_ip = client_config['SERVER_IP_ADDR']
+        self.port = client_config['UDP_PORT']
 
         self.state_transition_manager = StateTransitionManager()
 
@@ -37,6 +37,6 @@ class ClientSetup:
         
     def _server_response_thread(self):
         while( True ):
-            data, addr = self.sock.recvfrom(server_config['BUFFER_MAX_SIZE'])
+            data, addr = self.sock.recvfrom(client_config['BUFFER_MAX_SIZE'])
             self.state_transition_manager.process_response(data)
             
