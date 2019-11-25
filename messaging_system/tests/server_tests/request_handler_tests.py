@@ -75,7 +75,7 @@ class RequestHandlerTests(unittest.TestCase):
 
         self.assertEqual(self.request_handler.curr_response[0][0][header_keys['OPCODE']], opcodes['MUST_LOGIN_FIRST_ERROR'])
 
-    def missing_token_error(self):
+    def test_missing_token_error(self):
         payload = json.dumps({header_keys['MAGIC_NUM_1'] : MAGIC_NUMBER_1, 
                               header_keys['MAGIC_NUM_2'] : MAGIC_NUMBER_2,
                               header_keys['OPCODE'] : opcodes['SUBSCRIBE'],

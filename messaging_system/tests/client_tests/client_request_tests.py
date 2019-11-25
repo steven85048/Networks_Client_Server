@@ -7,8 +7,11 @@ from messaging_system.resources import opcodes, header_keys, MAGIC_NUMBER_1, MAG
 from messaging_system.server.server_message_factory import ServerMessageFactory
 import messaging_system.client.token_holder
 
+import sys
 import json
 import unittest
+import io
+from contextlib import redirect_stdout
 
 class ClientRequestTests(unittest.TestCase):
     def setUp(self):
@@ -142,6 +145,36 @@ class ClientRequestTests(unittest.TestCase):
         response_2 = ServerMessageFactory.successful_post_ack()
         response_2 = json.dumps(response_2).encode()
         self.response_handler.handle_response(response_2)
+
+        self.assertTrue(self.state_transition_manager.curr_state.state_completed)
+
+    def test_retrieve(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "retrieve#2"
+        self.input_handler.handle_input(input_2)
+
+        from_username = "ac2"
+        retrieve_message = "hello_test"
+        response_2 = ServerMessageFactory.retrieve_ack(from_username, retrieve_message)
+        response_2 = json.dumps(response_2).encode()
+        
+        file_descriptor = io.StringIO()
+        with redirect_stdout(file_descriptor):
+            self.response_handler.handle_response(response_2)
+            self.assertEqual(file_descriptor.getvalue(), "ac2 : hello_test\n")
+
+        self.assertFalse(self.state_transition_manager.curr_state.state_completed)
+
+        response_3 = ServerMessageFactory.end_of_retrieve_ack()
+        response_3 = json.dumps(response_3).encode()
+        self.response_handler.handle_response(response_3)
 
         self.assertTrue(self.state_transition_manager.curr_state.state_completed)
 

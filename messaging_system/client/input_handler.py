@@ -4,6 +4,7 @@ from messaging_system.client.state_handler.login_state import LoginState
 from messaging_system.client.state_handler.subscribe_state import SubscribeState
 from messaging_system.client.state_handler.unsubscribe_state import UnsubscribeState
 from messaging_system.client.state_handler.post_state import PostState
+from messaging_system.client.state_handler.retrieve_state import RetrieveState
 from messaging_system.client.exceptions import MalformedUserInputException
 
 class InputHandler:
@@ -59,4 +60,7 @@ class InputHandler:
         self.state_transition_manager.transition_to_state(post_state)
 
     def _handle_retrieve(self, user_input):
-        pass
+        num_messages = user_input.split("#")[1]
+
+        post_state = RetrieveState(num_messages)
+        self.state_transition_manager.transition_to_state(post_state)
