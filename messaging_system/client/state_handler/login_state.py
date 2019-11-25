@@ -3,6 +3,7 @@ from messaging_system.client.client_message_factory import ClientMessageFactory
 from messaging_system.client.state_handler.client_state import ClientState
 from messaging_system.resources import opcodes, header_keys
 from messaging_system.client.exceptions import MalformedRequestException
+import messaging_system.client.token_holder
 
 class LoginState(ClientState):
     def __init__(self, username, password):
@@ -29,7 +30,8 @@ class LoginState(ClientState):
         if( not header_keys['TOKEN'] in response ):
             raise MalformedRequestException("TOKEN expected in response")
 
-        # Get the token and store it for future uses (TODO)
-        token = header_keys['TOKEN']
+        # Get and store token in global module
+        token = response[header_keys['TOKEN']]
+        messaging_system.client.token_holder.token = token
 
         self.state_completed = True

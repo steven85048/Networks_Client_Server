@@ -5,6 +5,7 @@ from messaging_system.client.response_handler import ResponseHandler
 from messaging_system.client.exceptions import MalformedRequestException, MalformedUserInputException
 from messaging_system.resources import opcodes, header_keys, MAGIC_NUMBER_1, MAGIC_NUMBER_2
 from messaging_system.server.server_message_factory import ServerMessageFactory
+import messaging_system.client.token_holder
 
 import json
 import unittest
@@ -31,11 +32,14 @@ class ClientRequestTests(unittest.TestCase):
         input = "login#ac1&wrong_pass"
         self.input_handler.handle_input(input)
 
-        response = ServerMessageFactory.successful_login_ack(324)
+        token_number = 324
+
+        response = ServerMessageFactory.successful_login_ack(token_number)
         response = json.dumps(response).encode()
 
         self.response_handler.handle_response(response)
         self.assertTrue(self.state_transition_manager.curr_state.state_completed)
+        self.assertEqual(messaging_system.client.token_holder.token, token_number)
 
 if __name__ == '__main__':
     unittest.main()
