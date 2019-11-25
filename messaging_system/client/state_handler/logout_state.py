@@ -23,4 +23,6 @@ class LogoutState(ClientState):
         # Reset the token
         messaging_system.client.token_holder.token = None
 
+        print("logout_ack#successful")
+
         self.state_completed = True

@@ -19,11 +19,15 @@ class PostState(ClientState):
         super().process_response(response)
 
         if( response[header_keys['OPCODE']] == opcodes['FAILED_POST_ACK'] ):
+            print("post_ack#failed")
+
             if( header_keys['ERROR_MESSAGE'] in response ):
                 err_message = response[header_keys['ERROR_MESSAGE']]
             raise MalformedRequestException("Post Failed from Server: {}".format(err_message))
 
         if( response[header_keys['OPCODE']] != opcodes['SUCCESSFUL_POST_ACK'] ):
             raise MalformedRequestException("POST_ACK expected in response")
+
+        print("post_ack#successful")
 
         self.state_completed = True

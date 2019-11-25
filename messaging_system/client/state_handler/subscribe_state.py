@@ -19,11 +19,15 @@ class SubscribeState(ClientState):
         super().process_response(response)
 
         if( response[header_keys['OPCODE']] == opcodes['FAILED_SUBSCRIBE_ACK'] ):
+            print("subscribe_ack#failed")
+
             if( header_keys['ERROR_MESSAGE'] in response ):
                 err_message = response[header_keys['ERROR_MESSAGE']]
             raise MalformedRequestException("Subscribe Failed from Server: {}".format(err_message))
 
         if( response[header_keys['OPCODE']] != opcodes['SUCCESSFUL_SUBSCRIBE_ACK'] ):
             raise MalformedRequestException("SUBSCRIBE_ACK expected in response")
+
+        print("subscribe_ack#successful")
 
         self.state_completed = True

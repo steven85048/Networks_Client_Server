@@ -20,6 +20,8 @@ class LoginState(ClientState):
         super().process_response(response)
 
         if( response[header_keys['OPCODE']] == opcodes['FAILED_LOGIN_ACK'] ):
+            print("login_ack#failed")
+
             if( header_keys['ERROR_MESSAGE'] in response ):
                 err_message = response[header_keys['ERROR_MESSAGE']]
             raise MalformedRequestException("Login Failed from Server: {}".format(err_message))
@@ -33,5 +35,7 @@ class LoginState(ClientState):
         # Get and store token in global module
         token = response[header_keys['TOKEN']]
         messaging_system.client.token_holder.token = token
+
+        print("login_ack#successful")
 
         self.state_completed = True

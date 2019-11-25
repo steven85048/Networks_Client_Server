@@ -19,11 +19,15 @@ class UnsubscribeState(ClientState):
         super().process_response(response)
 
         if( response[header_keys['OPCODE']] == opcodes['FAILED_UNSUBSCRIBE_ACK'] ):
+            print("unsubscribe_ack#failed")
+
             if( header_keys['ERROR_MESSAGE'] in response ):
                 err_message = response[header_keys['ERROR_MESSAGE']]
             raise MalformedRequestException("Unsubscribe Failed from Server: {}".format(err_message))
 
         if( response[header_keys['OPCODE']] != opcodes['SUCCESSFUL_UNSUBSCRIBE_ACK'] ):
             raise MalformedRequestException("UNSUBSCRIBE_ACK expected in response")
+
+        print("unsubscribe_ack#successful")
 
         self.state_completed = True
