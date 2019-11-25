@@ -2,6 +2,7 @@
 
 from messaging_system.client.state_handler.login_state import LoginState
 from messaging_system.client.state_handler.subscribe_state import SubscribeState
+from messaging_system.client.state_handler.post_state import PostState
 from messaging_system.client.exceptions import MalformedUserInputException
 
 class InputHandler:
@@ -19,7 +20,7 @@ class InputHandler:
         elif "unsubscribe" in user_input:
             pass
         elif "post" in user_input:
-            pass
+            self._handle_post(user_input)
         elif "retrieve" in user_input:
             pass
 
@@ -44,5 +45,15 @@ class InputHandler:
 
         try:
             self.state_transition_manager.transition_to_state(subscribe_state)
+        except MalformedUserInputException as err:
+            print(err)
+
+    def _handle_post(self, user_input):
+        message = user_input.split('#')[1]
+
+        post_state = PostState(message)
+
+        try:
+            self.state_transition_manager.transition_to_state(post_state)
         except MalformedUserInputException as err:
             print(err)

@@ -66,7 +66,7 @@ class ClientRequestTests(unittest.TestCase):
 
         self.assertTrue(self.state_transition_manager.curr_state.state_completed)
 
-    def server_err_subscribe(self):
+    def test_server_err_subscribe(self):
         input = "login#ac1&pass1"
         self.input_handler.handle_input(input)
 
@@ -86,6 +86,24 @@ class ClientRequestTests(unittest.TestCase):
 
         self.assertTrue("Subscribe Failed from Server" in str(err.exception))
         self.assertFalse(self.state_transition_manager.curr_state.state_completed)
+
+    def test_post(self):
+        input = "login#ac1&pass1"
+        self.input_handler.handle_input(input)
+
+        token_number = 123
+        response = ServerMessageFactory.successful_login_ack(token_number)
+        response = json.dumps(response).encode()
+        self.response_handler.handle_response(response)
+
+        input_2 = "post#message"
+        self.input_handler.handle_input(input_2)
+
+        response_2 = ServerMessageFactory.successful_post_ack()
+        response_2 = json.dumps(response_2).encode()
+        self.response_handler.handle_response(response_2)
+
+        self.assertTrue(self.state_transition_manager.curr_state.state_completed)
 
 if __name__ == '__main__':
     unittest.main()
