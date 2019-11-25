@@ -41,5 +41,13 @@ class ClientRequestTests(unittest.TestCase):
         self.assertTrue(self.state_transition_manager.curr_state.state_completed)
         self.assertEqual(messaging_system.client.token_holder.token, token_number)
 
+    def test_missing_token(self):
+        input = "subscribe#client"
+
+        with self.assertRaises(MalformedUserInputException) as err:
+            self.input_handler.handle_input(input)
+
+        self.assertTrue("Cannot make that type of request until logged in" in str(err.exception))
+
 if __name__ == '__main__':
     unittest.main()

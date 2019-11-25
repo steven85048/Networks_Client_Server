@@ -1,6 +1,7 @@
 # Multiplexes the user_input into the correct sublogic
 
 from messaging_system.client.state_handler.login_state import LoginState
+from messaging_system.client.state_handler.subscribe_state import SubscribeState
 from messaging_system.client.exceptions import MalformedUserInputException
 
 class InputHandler:
@@ -14,7 +15,7 @@ class InputHandler:
         if "login" in user_input:
             self._handle_login(user_input)
         elif "subscribe" in user_input:
-            pass
+            self._handle_subscribe(user_input)
         elif "unsubscribe" in user_input:
             pass
         elif "post" in user_input:
@@ -37,4 +38,11 @@ class InputHandler:
             print(err)
 
     def _handle_subscribe(self, user_input):
-        pass
+        subscribe_name = user_input.split('#')[1]
+
+        subscribe_state = SubscribeState(subscribe_name)
+
+        try:
+            self.state_transition_manager.transition_to_state(subscribe_state)
+        except MalformedUserInputException as err:
+            print(err)
