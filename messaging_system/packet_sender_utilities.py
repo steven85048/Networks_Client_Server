@@ -9,7 +9,7 @@ import messaging_system.socket_holder
 # (a) The json object with the payload
 # (b) The two-tuple with (ip_addr, port)
 def send_packet(payloads):
-    print("Sending packets: {}".format(str(payloads)))
+    # print("Sending packets: {}".format(str(payloads)))
 
     for payload in payloads:
         # Convert string if json type

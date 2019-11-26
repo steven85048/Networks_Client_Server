@@ -35,6 +35,7 @@ class StateTransitionManager:
     def reset(self):
         with self.state_lock:
             self.curr_state = None
+            print("Client state reset!")
 
             # Send back a RESET
             request = []

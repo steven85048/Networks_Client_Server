@@ -51,11 +51,9 @@ class ClientSetup:
                 print("Enter another input")
             except MalformedRequestException as err:
                 print("Error in processing request: {}".format(str(err)))
-                print("State reset!")
                 self.state_transition_manager.reset()
             except Exception as err:
                 exc_info = sys.exc_info()
-                print("State reset!")
             finally:
                 if( not exc_info is None ):
                     traceback.print_exception(*exc_info)
@@ -69,11 +67,9 @@ class ClientSetup:
                 self.response_handler.handle_response(data)
             except MalformedRequestException as err:
                 print("Error in processing request: {}".format(str(err)))
-                print("State reset!")
                 self.state_transition_manager.reset()
             except Exception as err:
                 exc_info = sys.exc_info()
-                print("State reset!")
             finally:
                 if( not exc_info is None ):
                     traceback.print_exception(*exc_info)

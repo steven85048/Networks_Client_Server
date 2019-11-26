@@ -23,7 +23,11 @@ class RequestHandler:
             self._multiplex_request(decoded_payload)
         except MalformedRequestIdentityException as err:
             self.curr_response.append((ServerMessageFactory.invalid_header_identity(str(err)), self.curr_addr))
-            send_packet(self.curr_response)            
+            send_packet(self.curr_response)
+        except InvalidTokenException as err: 
+            # Send must-login-first-error
+            self.curr_response.append((ServerMessageFactory.must_login_first_error(str(err)), self.curr_addr))
+            send_packet(self.curr_response)
 
     # Depending on the opcode, handle the request in a different manner
     def _multiplex_request(self, payload):
@@ -61,7 +65,7 @@ class RequestHandler:
             try: 
                 message_details = self._handle_post(payload)
                 self.curr_response.append((ServerMessageFactory.successful_post_ack(), self.curr_addr))
-            
+
                 for subscriber_token in message_details['SUBSCRIBER_TOKENS']:
                     self.curr_response.append((ServerMessageFactory.forward(message_details['FROM_USERNAME'], 
                                                                             message_details['FORWARD_MESSAGE']), 
@@ -105,19 +109,11 @@ class RequestHandler:
 
     def validate_token_exists(func):
         def validate(self, payload):
-            try: 
-                # Special case for login, since token is not set of course
-                if( not func.__name__ == '_handle_login' and not header_keys["TOKEN"] in payload):
-                    raise MalformedRequestHeaderException("Token missing from request")
+            # Special case for login, since token is not set of course
+            if( not header_keys["TOKEN"] in payload):
+                raise MalformedRequestHeaderException("Token missing from request")
 
-                return func(self, payload)
-            except InvalidTokenException as err:
-                # Send must-login-first-error
-                self.curr_response.append((ServerMessageFactory.must_login_first_error(str(err)), self.curr_addr))
-                send_packet(self.curr_response)
-            except MalformedRequestHeaderException as err:
-                print(err)
-                raise
+            return func(self, payload)
 
         return validate
 
@@ -179,6 +175,6 @@ class RequestHandler:
         self.client_connection_service.logout(payload[header_keys['TOKEN']])
 
     # Session reset is essentially the same state as logged out in this use case
-    @validate_token_exists
     def _handle_session_reset(self, payload):
-        self.client_connection_service.logout(payload[header_keys['TOKEN']])
+        if( header_keys['TOKEN'] in payload ):
+            self.client_connection_service.logout(payload[header_keys['TOKEN']])
