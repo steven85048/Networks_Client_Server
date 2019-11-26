@@ -73,7 +73,7 @@ class RequestHandler:
             try: 
                 self._handle_forward_ack(payload)
             except MalformedRequestHeaderException as err:
-                pass
+                self.curr_response.append((ServerMessageFactory.session_reset(), self.curr_addr))
         elif( payload[header_keys['OPCODE']] == opcodes['RETRIEVE']):
             try: 
                 messages_to_send = self._handle_retrieve(payload)
@@ -86,18 +86,18 @@ class RequestHandler:
                 self.curr_response.append((ServerMessageFactory.end_of_retrieve_ack(), self.curr_addr))
 
             except MalformedRequestHeaderException as err:
-                pass
+                self.curr_response.append((ServerMessageFactory.session_reset(), self.curr_addr))
         elif( payload[header_keys['OPCODE']] == opcodes['LOGOUT'] ):
             try: 
                 self._handle_logout(payload)
                 self.curr_response.append((ServerMessageFactory.logout_ack(), self.curr_addr))
             except MalformedRequestHeaderException as err:   
-                pass
+                self.curr_response.append((ServerMessageFactory.session_reset(), self.curr_addr))
         elif( payload[header_keys['OPCODE']] == opcodes['SESSION_RESET']):
             try:
                 self._handle_session_reset(payload)
             except MalformedRequestHeaderException as err:
-                pass
+                self.curr_response.append((ServerMessageFactory.session_reset(), self.curr_addr))
         else:
             raise MalformedRequestIdentityException("Opcode is invalid")
         

@@ -100,6 +100,12 @@ class ServerMessageFactory:
         return header
 
     @staticmethod
+    def session_reset():
+        header = ServerMessageFactory.create_base_request()
+        header[header_keys['OPCODE']] = opcodes['SESSION_RESET']
+        return header
+
+    @staticmethod
     def create_base_request():
         header = {}
 
