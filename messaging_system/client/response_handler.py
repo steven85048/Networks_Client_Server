@@ -14,7 +14,13 @@ class ResponseHandler:
         
         self.is_response_valid_initial_check(decoded_payload)
 
-        if( decoded_payload[header_keys['OPCODE']] == opcodes['SESSION_RESET'] ):
+        has_session_reset = decoded_payload[header_keys['OPCODE']] == opcodes['SESSION_RESET']
+        has_must_login_first = decoded_payload[header_keys['OPCODE']] == opcodes['MUST_LOGIN_FIRST_ERROR']
+
+        if( has_must_login_first ):
+            print("Your token is invalid; please relogin")
+
+        if( has_session_reset or has_must_login_first ):
             self.state_transition_manager.reset()
         elif( not self.forward_handler.handle_forwarding( decoded_payload )):
             self.state_transition_manager.process_response(decoded_payload)
