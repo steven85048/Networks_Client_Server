@@ -179,6 +179,6 @@ class RequestHandler:
         self.client_connection_service.logout(payload[header_keys['TOKEN']])
 
     # Session reset is essentially the same state as logged out in this use case
+    @validate_token_exists
     def _handle_session_reset(self, payload):
-        if( header_keys["TOKEN"] in payload ):
-            self.client_connection_service.logout(payload[header_keys['TOKEN']])
+        self.client_connection_service.logout(payload[header_keys['TOKEN']])

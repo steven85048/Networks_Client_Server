@@ -11,8 +11,7 @@ class ResponseHandler:
 
     def handle_response(self, response):
         decoded_payload = json.loads( response.decode() )
-        print("Response received: {}".format(decoded_payload))
-
+        
         self.is_response_valid_initial_check(decoded_payload)
 
         if( decoded_payload[header_keys['OPCODE']] == opcodes['SESSION_RESET'] ):
