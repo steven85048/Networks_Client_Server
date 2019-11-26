@@ -7,6 +7,7 @@ from numpy.random import randint
 from datetime import datetime
 
 from messaging_system.server.config import MAX_RANDOM_TOKEN, TOKEN_EXPIRATION_INTERVAL
+from messaging_system.server.exceptions import MalformedRequestHeaderException
 
 class ClientAccount:
     def __init__(self, username, password):
@@ -43,8 +44,14 @@ class ClientAccount:
         self.token = None
 
     def get_messages(self, num_messages):
-        if( isinstance(num_messages, str)):
-            num_messages = int(num_messages)
+        try:
+            if( isinstance(num_messages, str)):
+                num_messages = int(num_messages)
+        except ValueError:
+            raise MalformedRequestHeaderException("Cannot convert num_messages to integer")
+
+        if(not isinstance(num_messages, int)):
+            raise MalformedRequestHeaderException("Num_messages malformed in request!")
 
         num_messages = min(len(self.messages), num_messages)
         return self.messages[-num_messages:]
