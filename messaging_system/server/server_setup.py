@@ -13,6 +13,7 @@ class ServerSetup:
         self.sock = socket.socket(socket.AF_INET,
                                   socket.SOCK_DGRAM)
         self.sock.bind((server_config['SERVER_IP_ADDR'], server_config['UDP_PORT']))
+        self.sock.settimeout(server_config['SOCKET_TIMEOUT'])
 
         self.client_connection_service = ClientConnectionService()
         self.request_handler = RequestHandler( self.client_connection_service )

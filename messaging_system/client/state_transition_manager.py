@@ -7,6 +7,10 @@
 from threading import Lock
 
 from messaging_system.client.exceptions import MalformedRequestException
+from messaging_system.server.config import server_config
+from messaging_system.client.client_message_factory import ClientMessageFactory
+from messaging_system.packet_sender_utilities import send_packet
+import messaging_system.client.token_holder
 
 class StateTransitionManager:
     def __init__(self):
@@ -31,3 +35,11 @@ class StateTransitionManager:
     def reset(self):
         with self.state_lock:
             self.curr_state = None
+
+            # Send back a RESET
+            request = []
+            payload = ClientMessageFactory.session_reset(messaging_system.client.token_holder.token)
+            request.append((payload, (server_config['SERVER_IP_ADDR'], server_config['UDP_PORT'])))
+            send_packet(request)
+
+            messaging_system.client.token_holder.token = None

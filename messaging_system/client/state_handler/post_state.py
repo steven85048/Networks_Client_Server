@@ -16,8 +16,6 @@ class PostState(ClientState):
         super().start_state()
 
     def process_response(self, response):
-        super().process_response(response)
-
         if( response[header_keys['OPCODE']] == opcodes['FAILED_POST_ACK'] ):
             print("post_ack#failed")
 

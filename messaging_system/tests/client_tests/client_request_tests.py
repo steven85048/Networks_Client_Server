@@ -184,11 +184,7 @@ class ClientRequestTests(unittest.TestCase):
         response_2 = ServerMessageFactory.retrieve_ack(from_username, retrieve_message)
         response_2 = json.dumps(response_2).encode()
         
-        file_descriptor = io.StringIO()
-        with redirect_stdout(file_descriptor):
-            self.response_handler.handle_response(response_2)
-            self.assertEqual(file_descriptor.getvalue(), "ac2 : hello_test\n")
-
+        self.response_handler.handle_response(response_2)
         self.assertFalse(self.state_transition_manager.curr_state.state_completed)
 
         response_3 = ServerMessageFactory.end_of_retrieve_ack()

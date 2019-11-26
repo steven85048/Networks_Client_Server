@@ -30,11 +30,4 @@ class ClientState(ABC):
 
     @abstractmethod
     def process_response(self, response):
-        if( not header_keys['MAGIC_NUM_1'] in response 
-            or not header_keys['MAGIC_NUM_2'] in response 
-            or response[header_keys['MAGIC_NUM_1']] != MAGIC_NUMBER_1
-            or response[header_keys['MAGIC_NUM_2']] != MAGIC_NUMBER_2 ):
-            raise MalformedRequestException("Magic Numbers Set Incorrectly")
-
-        if( not header_keys['OPCODE'] in response ):
-            raise MalformedRequestException("Missing OPCODE in response")
+        pass

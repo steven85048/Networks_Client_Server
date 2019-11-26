@@ -1,10 +1,13 @@
 import socket
+import sys
 import threading
+import traceback
 
 from messaging_system.client.config import client_config
 from messaging_system.client.input_handler import InputHandler
 from messaging_system.client.response_handler import ResponseHandler
 from messaging_system.client.state_transition_manager import StateTransitionManager
+from messaging_system.client.exceptions import MalformedRequestException, MalformedUserInputException
 import messaging_system.socket_holder
 
 class ClientSetup:
@@ -19,6 +22,7 @@ class ClientSetup:
 
         self.sock = socket.socket(socket.AF_INET,
                                   socket.SOCK_DGRAM)
+        self.sock.settimeout(client_config['SOCKET_TIMEOUT'])
         self.sock.bind((self.udp_ip, self.port))
 
         messaging_system.socket_holder.socket = self.sock
@@ -38,11 +42,38 @@ class ClientSetup:
 
     def _user_input_thread(self):
         while( True ):
-            user_input = input()
-            self.input_handler.handle_input(user_input)
-        
+            try: 
+                exc_info = None
+                user_input = input()
+                self.input_handler.handle_input(user_input)
+            except MalformedUserInputException as err:
+                print("Malformed input: {}".format(str(err)))
+                print("Enter another input")
+            except MalformedRequestException as err:
+                print("Error in processing request: {}".format(str(err)))
+                print("State reset!")
+                self.state_transition_manager.reset()
+            except Exception as err:
+                exc_info = sys.exc_info()
+                print("State reset!")
+            finally:
+                if( not exc_info is None ):
+                    traceback.print_exception(*exc_info)
+                
     def _server_response_thread(self):
         while( True ):
-            data, addr = self.sock.recvfrom(client_config['BUFFER_MAX_SIZE'])
-            self.response_handler.handle_response(data)
             
+            try:
+                exc_info = None
+                data, addr = self.sock.recvfrom(client_config['BUFFER_MAX_SIZE'])
+                self.response_handler.handle_response(data)
+            except MalformedRequestException as err:
+                print("Error in processing request: {}".format(str(err)))
+                print("State reset!")
+                self.state_transition_manager.reset()
+            except Exception as err:
+                exc_info = sys.exc_info()
+                print("State reset!")
+            finally:
+                if( not exc_info is None ):
+                    traceback.print_exception(*exc_info)

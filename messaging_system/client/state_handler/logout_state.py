@@ -15,8 +15,6 @@ class LogoutState(ClientState):
         super().start_state()
 
     def process_response(self, response):
-        super().process_response(response)
-
         if( response[header_keys['OPCODE']] != opcodes['LOGOUT_ACK'] ):
             raise MalformedRequestException("LOGOUT_ACK expected in response")
 

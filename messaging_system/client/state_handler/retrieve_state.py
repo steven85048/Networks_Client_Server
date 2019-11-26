@@ -16,8 +16,6 @@ class RetrieveState(ClientState):
         super().start_state()
 
     def process_response(self, response):
-        super().process_response(response)
-
         if( response[header_keys['OPCODE']] == opcodes['RETRIEVE_ACK'] ):
             retrieved_message = response[header_keys['MESSAGE']]
             from_username = response[header_keys['FROM_USERNAME']]

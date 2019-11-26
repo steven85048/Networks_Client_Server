@@ -17,6 +17,14 @@ class ClientMessageFactory():
         return header
 
     @staticmethod
+    def session_reset(token):
+        header = ClientMessageFactory._create_base_request()
+        header[header_keys['OPCODE']] = opcodes['SESSION_RESET']
+        if( not token is None ):
+            header[header_keys['TOKEN']] = token
+        return header
+
+    @staticmethod
     def subscribe(token, from_username):
         header = ClientMessageFactory._create_base_request()
         header[header_keys['OPCODE']] = opcodes['SUBSCRIBE']

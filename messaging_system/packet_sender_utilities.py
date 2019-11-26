@@ -19,4 +19,5 @@ def send_packet(payloads):
         ip_addr = payload[1][0]
         port = payload[1][1]
 
-        messaging_system.socket_holder.socket.sendto(temp_payload.encode(), (ip_addr, port))
+        if( not messaging_system.socket_holder.socket is None ):
+            messaging_system.socket_holder.socket.sendto(temp_payload.encode(), (ip_addr, port))

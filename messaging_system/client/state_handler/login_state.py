@@ -17,8 +17,6 @@ class LoginState(ClientState):
         super().start_state()
 
     def process_response(self, response):
-        super().process_response(response)
-
         if( response[header_keys['OPCODE']] == opcodes['FAILED_LOGIN_ACK'] ):
             print("login_ack#failed")
 

@@ -93,6 +93,11 @@ class RequestHandler:
                 self.curr_response.append((ServerMessageFactory.logout_ack(), self.curr_addr))
             except MalformedRequestHeaderException as err:   
                 pass
+        elif( payload[header_keys['OPCODE']] == opcodes['SESSION_RESET']):
+            try:
+                self._handle_session_reset(payload)
+            except MalformedRequestHeaderException as err:
+                pass
         else:
             raise MalformedRequestIdentityException("Opcode is invalid")
         
@@ -102,7 +107,7 @@ class RequestHandler:
         def validate(self, payload):
             try: 
                 # Special case for login, since token is not set of course
-                if( not func.__name__ == '_handle_login' and not 'token' in payload):
+                if( not func.__name__ == '_handle_login' and not header_keys["TOKEN"] in payload):
                     raise MalformedRequestHeaderException("Token missing from request")
 
                 return func(self, payload)
@@ -172,3 +177,8 @@ class RequestHandler:
     @validate_token_exists
     def _handle_logout(self, payload):
         self.client_connection_service.logout(payload[header_keys['TOKEN']])
+
+    # Session reset is essentially the same state as logged out in this use case
+    def _handle_session_reset(self, payload):
+        if( header_keys["TOKEN"] in payload ):
+            self.client_connection_service.logout(payload[header_keys['TOKEN']])

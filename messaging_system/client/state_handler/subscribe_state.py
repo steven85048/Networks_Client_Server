@@ -16,8 +16,6 @@ class SubscribeState(ClientState):
         super().start_state()
 
     def process_response(self, response):
-        super().process_response(response)
-
         if( response[header_keys['OPCODE']] == opcodes['FAILED_SUBSCRIBE_ACK'] ):
             print("subscribe_ack#failed")
 
