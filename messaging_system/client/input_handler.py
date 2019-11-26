@@ -34,8 +34,13 @@ class InputHandler:
             self._handle_retrieve(user_input)
 
     def _handle_login(self, user_input):
-        op_split = user_input.split('#')[1]
-        auth_split = op_split.split('&')
+        op_split_arr = user_input.split('#')
+        if(len(op_split_arr) != 2):
+            raise MalformedUserInputException("Login missing or contains an extra #")
+        
+        auth_split = op_split_arr[1].split('&')
+        if(len(auth_split) != 2):
+            raise MalformedUserInputException("Login missing or contains an extra &")
 
         username = auth_split[0]
         password = auth_split[1]
@@ -48,25 +53,33 @@ class InputHandler:
         self.state_transition_manager.transition_to_state(logout_state)
 
     def _handle_subscribe(self, user_input):
-        subscribe_name = user_input.split('#')[1]
+        subscribe_name_arr = user_input.split('#')
+        if( len(subscribe_name_arr) != 2 ):
+            raise MalformedUserInputException("Subscribe missing or contains an extra #")
         
-        subscribe_state = SubscribeState(subscribe_name)
+        subscribe_state = SubscribeState(subscribe_name_arr[1])
         self.state_transition_manager.transition_to_state(subscribe_state)
 
     def _handle_unsubscribe(self, user_input):
-        unsubscribe_name = user_input.split('#')[1]
-        
-        unsubscribe_state = UnsubscribeState(unsubscribe_name)
+        unsubscribe_name_arr = user_input.split('#')
+        if( len(unsubscribe_name_arr) != 2 ):
+            raise MalformedUserInputException("Unsubscribe missing or contains an extra #")
+
+        unsubscribe_state = UnsubscribeState(unsubscribe_name_arr[1])
         self.state_transition_manager.transition_to_state(unsubscribe_state)
 
     def _handle_post(self, user_input):
-        message = user_input.split('#')[1]
-        
-        post_state = PostState(message)
+        message_arr = user_input.split('#')
+        if( len(message_arr) != 2 ):
+            raise MalformedUserInputException("Post missing or contains an extra #")
+
+        post_state = PostState(message_arr[1])
         self.state_transition_manager.transition_to_state(post_state)
 
     def _handle_retrieve(self, user_input):
-        num_messages = user_input.split("#")[1]
+        num_messages_arr = user_input.split("#")
+        if( len(num_messages_arr) != 2 ):
+            raise MalformedUserInputException("Retrieve missing or contains an extra #")
 
-        post_state = RetrieveState(num_messages)
+        post_state = RetrieveState(num_messages_arr[1])
         self.state_transition_manager.transition_to_state(post_state)
