@@ -18,7 +18,7 @@ class ResponseHandler:
         has_must_login_first = decoded_payload[header_keys['OPCODE']] == opcodes['MUST_LOGIN_FIRST_ERROR']
 
         if( has_must_login_first ):
-            print("Your token is invalid; please relogin")
+            print("error#must_login_first")
 
         if( has_session_reset or has_must_login_first ):
             self.state_transition_manager.reset()
