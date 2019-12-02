@@ -1,0 +1,10 @@
+# Sets up the docker containers necessary for the server configuration
+# Note that generally the web server and database are generally on different hosts for reasons such as horizontal scaling, but
+# we keep it on one host here for simplicity for now
+version: "2"
+services:  
+  postgresql:
+    container_name: postgres
+    image: postgres
+    ports:
+      - "5432:5432"

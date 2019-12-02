@@ -14,6 +14,7 @@ class RequestHandler:
     def handle_request(self, data, addr):
         # The input comes in as a json string encoded as bytes, so we decode it and deserialize the json from a string
         decoded_payload = json.loads( data.decode() )
+        print("")
         print("Received payload: {}".format(decoded_payload))
 
         self.curr_response = []
@@ -39,9 +40,6 @@ class RequestHandler:
 
         if( not header_keys['OPCODE'] in payload ):
             raise MalformedRequestIdentityException("Missing Opcode in request")
-
-        # NOTE that some exceptions below are not relayed back to the user since
-        # not mandated
 
         if( payload[header_keys['OPCODE']] == opcodes['LOGIN'] ):
             try:

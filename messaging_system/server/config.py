@@ -8,4 +8,4 @@ server_config = dict(
 )
 
 MAX_RANDOM_TOKEN = 50000
-TOKEN_EXPIRATION_INTERVAL = timedelta(seconds = 20)
+TOKEN_EXPIRATION_INTERVAL = timedelta(seconds = 30)
