@@ -11,14 +11,20 @@ class RequestHandler:
     def __init__(self, client_connection_service):
         self.client_connection_service = client_connection_service
 
-    def handle_request(self, data, addr):
+    def handle_request(self, data, addr):        
         # The input comes in as a json string encoded as bytes, so we decode it and deserialize the json from a string
-        decoded_payload = json.loads( data.decode() )
-        print("")
-        print("Received payload: {}".format(decoded_payload))
+        # If invalid non-json, just drop it
+        try:
+            decoded_payload = json.loads( data.decode() )
+        except Exception as err:
+            print("Received invalid JSON in packet; dropping!")
+            return
 
         self.curr_response = []
         self.curr_addr = addr
+
+        print("")
+        print("Received payload: {}".format(decoded_payload))
 
         try: 
             self._multiplex_request(decoded_payload)
