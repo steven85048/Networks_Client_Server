@@ -2,6 +2,7 @@
 Client-server system built upon basic UDP socket calls. 
 
 ## Running the application
+** Note that these steps are done automatically if ran as a container **
 
 [from the networks_client_server directory] <br>
 
