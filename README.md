@@ -19,6 +19,11 @@ To run the client(s): `python -m messaging_system.client`
 
 Configurations defined in messaging_system.client/server.config.
 
+## Docker Setup (Windows)
+To setup docker on WSL: <b>
+Follow the tutorial at: https://medium.com/@sebagomez/installing-the-docker-client-on-ubuntus-windows-subsystem-for-linux-612b392a44c4 <b>
+Note that windows docker desktop must be installed and running on port 2375 beforehand.
+
 ## Project Details
 This project features an architecture where multiple clients can login and subscribe to messages posted by other users. <br>
 The core commands are as follows:
