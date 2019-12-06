@@ -4,6 +4,15 @@ Client-server system built upon basic UDP socket calls.
 ## Running the application
 
 [from the networks_client_server directory] <br>
+
+To set up the environment: <br>
+1. Install virtualenv with pip: `python3 -m pip install --user virtualenv`
+2. `sudo apt-get install python3-venv`
+3. Create a blank environment: `python3 -m venv env`
+4. Activate the environment: `source env/bin/activate`
+5. Install dependencies: `pip3 install -r requirements.txt`
+
+While the environment is activated: <br>
 To run the server: `python -m messaging_system.server` <br>
 To run the client(s): `python -m messaging_system.client`
 
