@@ -21,8 +21,21 @@ Configurations defined in messaging_system.client/server.config.
 
 ## Docker Setup (Windows)
 To setup docker on WSL: <br>
-Follow the tutorial at: https://medium.com/@sebagomez/installing-the-docker-client-on-ubuntus-windows-subsystem-for-linux-612b392a44c4 <br>
-Note that windows docker desktop must be installed and running on port 2375 beforehand.
+1. Follow the tutorial at: https://medium.com/@sebagomez/installing-the-docker-client-on-ubuntus-windows-subsystem-for-linux-612b392a44c4 <br>
+<i> Note that windows docker desktop must be installed and running on port 2375 beforehand.  </i>
+
+
+To build the image from a dockerfile: <br>
+1. `cd <directory with dockerfile>`
+2. `docker build -t <image-name>:<version-number> .`
+
+To deploy the image to ECR: <br>
+1. Follow the tutorial here: https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html
+
+## Docker Deployment
+This application is deployed with AWS infrastructure configurations defined in the parent repository: http://github.com/steven85048/Expense_Tracker <br>
+
+The infrastructure is configured so that the machine automatically pulls the latest Docker image in the repository continually through Watchtower. The specifics of the containers deployed is defined in the docker-compose defined in Expense_Tracker/infrastructure_configuration/host_config_ansible/roles/networks-messaging-server/files. This file is copied over to the remote host, and used as the basis for docker-compose.
 
 ## Project Details
 This project features an architecture where multiple clients can login and subscribe to messages posted by other users. <br>
