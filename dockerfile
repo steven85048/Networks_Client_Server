@@ -1,13 +1,10 @@
-FROM ubuntu:16.04
-
-RUN apt-get update -y && \
-    apt-get install -y python-dev python3-pip
-
-# We copy just the requirements.txt first to leverage Docker cache
-COPY ./requirements.txt /app/requirements.txt
+# Ubuntu containing updated apt and python/pip3
+# ECR must be authenticated before use
+FROM 003195358776.dkr.ecr.us-east-2.amazonaws.com/expense_tracker_ecr:python-base
 
 WORKDIR /app
 
+COPY ./requirements.txt /app/requirements.txt
 RUN pip3 install -r requirements.txt
 
 COPY . /app
