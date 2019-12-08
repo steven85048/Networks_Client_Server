@@ -1,11 +1,16 @@
-FROM python:alpine3.7
-RUN mkdir -p /usr/src/server
-WORKDIR /usr/src/server
+FROM ubuntu:16.04
 
-ONBUILD COPY requirements.txt .
-ONBUILD RUN pip3 install -r requirements.txt
+RUN apt-get update -y && \
+    apt-get install -y python-dev python3-pip
 
-ONBUILD COPY ./messaging_system .
-EXPOSE 5006
+# We copy just the requirements.txt first to leverage Docker cache
+COPY ./requirements.txt /app/requirements.txt
 
-CMD python3 -m messaging_system.server
+WORKDIR /app
+
+RUN pip3 install -r requirements.txt
+
+COPY . /app
+
+ENTRYPOINT [ "python3" ]
+CMD [ "-m", "messaging_system.server" ]

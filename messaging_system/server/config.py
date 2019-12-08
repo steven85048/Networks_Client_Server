@@ -2,7 +2,7 @@ from datetime import timedelta
 
 server_config = dict(
     SERVER_BIND_IP_ADDR = "0.0.0.0",
-    SERVER_IP_ADDR = "18.217.204.132",
+    SERVER_IP_ADDR = "3.136.156.128",
     UDP_PORT = 5006,
     BUFFER_MAX_SIZE = 1024,
     SOCKET_TIMEOUT = 5000.0
