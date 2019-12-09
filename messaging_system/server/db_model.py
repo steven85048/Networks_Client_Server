@@ -10,7 +10,7 @@ class ClientAccount(Base):
 
     id = Column(Integer, primary_key=True)
 
-    username = Column(String(250), nullable=False)
+    username = Column(String(250), nullable=False, unique=True)
     password = Column(String(250), nullable=False)
     token = Column(JSON)
 

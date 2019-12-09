@@ -14,24 +14,32 @@ class ClientAccountService:
 
         Base.metadata.bind = engine
         self.db_session = sessionmaker(bind=engine)
+        self.session = self.db_session()
 
     def get_username(self):
-        session = self.db_session()
-
-        res = session.query(ClientAccount).filter(ClientAccount.id==self.account_id).one()
+        res = self.session.query(ClientAccount).filter(ClientAccount.id==self.account_id).one()
         return res.username
 
     def get_password(self):
-        session = self.db_session()
-
-        res = session.query(ClientAccount).filter(ClientAccount.id==self.account_id).one()
+        res = self.session.query(ClientAccount).filter(ClientAccount.id==self.account_id).one()
         return res.password
 
     def get_token(self):
-        session = self.db_session()
-
-        res = session.query(ClientAccount).filter(ClientAccount.id==self.account_id).one()
+        res = self.session.query(ClientAccount).filter(ClientAccount.id==self.account_id).one()
         return res.token
+
+    def add_subscription(self, subscription_username):
+        if(self._is_username_valid(subscription_username)):
+            return False
+
+    def remove_subscription(self, subscription_username):
+        if(self._is_username_valid(subscription_username)):
+            return False
+
+    def _is_username_valid(self, username):
+        res = self.session.query(ClientAccount).filter(ClientAccount.username==username).all()
+        return not res is None
+
 
 account = ClientAccountService(1)
 account.get_password()
