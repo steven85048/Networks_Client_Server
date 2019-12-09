@@ -34,9 +34,11 @@ class Subscriptions(Base):
 
     id = Column(Integer, primary_key=True)
 
-    subscriber = relationship(ClientAccount)
-    subscriber_id = Column(Integer, ForeignKey('client_account.id'))
-    subscription = relationship(ClientAccount)
-    subscription_id = Column(Integer, ForeignKey('client_account.id'))
+    subscriber_id = Column(Integer, ForeignKey('client_account.id'), nullable=False)
+    subscription_id = Column(Integer, ForeignKey('client_account.id'), nullable=False)
+
+    subscription = relationship(ClientAccount, foreign_keys=[subscriber_id])
+    subscriber = relationship(ClientAccount, foreign_keys=[subscription_id])
+
 
 Base.metadata.create_all(engine)
