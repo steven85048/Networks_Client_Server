@@ -3,11 +3,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import datetime
 
-# psql -h 3.136.156.128 -p 5432 -U root networks-messaging-server
-# to connect to dev database
-engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
-connection = engine.connect()
-
 Base = declarative_base()
 
 class ClientAccount(Base):
@@ -40,5 +35,10 @@ class Subscriptions(Base):
     subscription = relationship(ClientAccount, foreign_keys=[subscriber_id])
     subscriber = relationship(ClientAccount, foreign_keys=[subscription_id])
 
+if __name__ == '__main__':
+    # psql -h 3.136.156.128 -p 5432 -U root networks-messaging-server
+    # to connect to dev database
+    engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
+    connection = engine.connect()
 
-Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine)
