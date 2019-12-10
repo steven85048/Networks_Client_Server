@@ -1,9 +1,11 @@
 # This class defines all the operations to be performed on a single user
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from numpy.random import randint
+from datetime import datetime
+from sqlalchemy import update
 
 from messaging_system.server.db_model import Base, ClientAccount, Messages, Subscriptions
+from messaging_system.server.config import MAX_RANDOM_TOKEN, TOKEN_EXPIRATION_INTERVAL
 
 class ClientAccountService:
     def __init__(self, account_username, session):
@@ -42,8 +44,30 @@ class ClientAccountService:
         self.session.commit()
         return True
 
+    def logout(self):
+        account = self.session.query(ClientAccount)\
+            .filter(ClientAccount.username == self.account_username)\
+            .first()
+        account.token = None
+
+        self.session.commit()
+
+    def generate_token(self, addr):
+        token = {   'token_val' : self._generate_token(), 
+                    'time' : str( datetime.utcnow() ),
+                    'client_addr' : { 'ip_addr' : addr[0], 'port' : addr[1] } }
+        account = self.session.query(ClientAccount)\
+            .filter(ClientAccount.username == self.account_username)\
+            .first()
+        account.token = token
+
+        self.session.commit()
+
     def _is_subscription_active(self, subscription_username):
         res = self.session.query(Subscriptions)\
                           .filter(Subscriptions.subscription_username == subscription_username)\
                           .filter(Subscriptions.subscriber_username == self.account_username).first()
         return not res is None
+
+    def _generate_token(self):
+        return randint(0, MAX_RANDOM_TOKEN)
