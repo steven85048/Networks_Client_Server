@@ -50,7 +50,7 @@ class RequestHandler:
         if( payload[header_keys['OPCODE']] == opcodes['LOGIN'] ):
             try:
                 user_token = self._handle_login(payload, self.curr_addr)       
-                self.curr_response.append((ServerMessageFactory.successful_login_ack(user_token['token_val']), self.curr_addr))
+                self.curr_response.append((ServerMessageFactory.successful_login_ack(user_token), self.curr_addr))
             except MalformedRequestHeaderException as err:
                 self.curr_response.append((ServerMessageFactory.failed_login_ack(str(err)), self.curr_addr))
         elif( payload[header_keys['OPCODE']] == opcodes['SUBSCRIBE']):
@@ -86,8 +86,8 @@ class RequestHandler:
             try: 
                 messages_to_send = self._handle_retrieve(payload)
                 for message_to_send in messages_to_send:
-                    message = message_to_send[0]
-                    from_username = message_to_send[1]
+                    message = message_to_send.message
+                    from_username = message_to_send.from_account_username
                     self.curr_response.append((ServerMessageFactory.retrieve_ack(from_username, message), self.curr_addr))
             
                 # Send by end of retrieve ACK after sending all messages
@@ -171,7 +171,19 @@ class RequestHandler:
         if( not header_keys['NUM_MESSAGES'] in payload):
             raise MalformedRequestHeaderException("Missing number of message in RETRIEVE request")
 
-        messages_to_send = self.client_connection_service.retrieve(payload[header_keys['TOKEN']], payload[header_keys['NUM_MESSAGES']])
+        num_messages = payload[header_keys['NUM_MESSAGES']]
+        
+        # Cast the string to an int if necessary; throw a ValueError if unable
+        try:
+            if( isinstance(num_messages, str)):
+                num_messages = int(num_messages)
+        except ValueError:
+            raise MalformedRequestHeaderException("Cannot convert num_messages to integer")
+
+        if(not isinstance(num_messages, int)):
+            raise MalformedRequestHeaderException("Num_messages malformed in request!")
+
+        messages_to_send = self.client_connection_service.retrieve(payload[header_keys['TOKEN']], num_messages )
         return messages_to_send
 
     @validate_token_exists

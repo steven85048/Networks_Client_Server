@@ -63,7 +63,7 @@ class ClientAccountsService:
         user_token = None
         if( not account_service is None ):
             account_service.generate_token(addr)
-            user_token = account_service.get_token()
+            user_token = account_service.get_token()['token_val']
 
         return user_token
 

@@ -7,6 +7,7 @@ from dateutil import parser
 
 from messaging_system.server.db_model import Base, ClientAccount, Messages, Subscriptions
 from messaging_system.server.config import MAX_RANDOM_TOKEN, TOKEN_EXPIRATION_INTERVAL
+from messaging_system.server.exceptions import MalformedRequestHeaderException
 
 class ClientAccountService:
     def __init__(self, account_username, session):
@@ -21,10 +22,6 @@ class ClientAccountService:
         return res.password
 
     def get_token(self):
-        res = self.session.query(ClientAccount).filter(ClientAccount.username==self.account_username).one()
-        return res.token['token_val']
-
-    def get_token_full(self):
         res = self.session.query(ClientAccount).filter(ClientAccount.username==self.account_username).one()
         return res.token
 
@@ -67,7 +64,7 @@ class ClientAccountService:
         self.session.commit()
 
     def is_token_valid(self):
-        token = self.get_token_full()
+        token = self.get_token()
         if( token is None ):
             return False
 
@@ -87,17 +84,6 @@ class ClientAccountService:
         self.session.commit()
 
     def get_messages(self, num_messages):
-        # TODO: add num_messages int cast check somewhere higher in the hierarchy
-        # where it makes sense
-        try:
-            if( isinstance(num_messages, str)):
-                num_messages = int(num_messages)
-        except ValueError:
-            raise MalformedRequestHeaderException("Cannot convert num_messages to integer")
-
-        if(not isinstance(num_messages, int)):
-            raise MalformedRequestHeaderException("Num_messages malformed in request!")
-        
         messages = self.session.query(Messages)\
                                .filter(Messages.to_account_username==self.account_username)\
                                .order_by(Messages.post_time.desc())\

@@ -50,10 +50,10 @@ class ClientConnectionServiceTests(unittest.TestCase):
         post_message = 'testing_hello'
         subscriber_tokens, from_username = self.connection_service.post(token3, post_message)
 
-        self.assertTrue( token1 in subscriber_tokens )
-        self.assertTrue( token2 in subscriber_tokens )
-        self.assertTrue( not token3 in subscriber_tokens )
-        self.assertTrue( not token4 in subscriber_tokens )
+        self.assertTrue(self._token_val_exists_in_list( token1, subscriber_tokens))
+        self.assertTrue(self._token_val_exists_in_list( token2, subscriber_tokens))
+        self.assertFalse(self._token_val_exists_in_list( token3, subscriber_tokens))
+        self.assertFalse(self._token_val_exists_in_list( token4, subscriber_tokens))
 
         ac1_messages = self.connection_service.retrieve(token1, 3)
         self.assertTrue( self._message_exists_in_list( post_message, ac1_messages) )
@@ -77,7 +77,7 @@ class ClientConnectionServiceTests(unittest.TestCase):
 
         post_message = 'testing2'
         subscriber_tokens, from_username = self.connection_service.post(token2, post_message)
-        self.assertTrue( token1 in subscriber_tokens )
+        self.assertTrue(self._token_val_exists_in_list( token1, subscriber_tokens))
         ac1_messages = self.connection_service.retrieve(token1, 2)
         self.assertTrue( self._message_exists_in_list( post_message, ac1_messages) )
 
@@ -85,7 +85,7 @@ class ClientConnectionServiceTests(unittest.TestCase):
         
         post_message_2 = 'testing3'
         subscriber_tokens, from_username = self.connection_service.post(token2, post_message_2)
-        self.assertTrue( not token1 in subscriber_tokens )
+        self.assertFalse(self._token_val_exists_in_list( token1, subscriber_tokens))
         ac1_messages_2 = self.connection_service.retrieve(token1, 2)
         self.assertTrue( not self._message_exists_in_list( post_message_2, ac1_messages_2) )
 
@@ -98,6 +98,13 @@ class ClientConnectionServiceTests(unittest.TestCase):
     def _message_exists_in_list( self, message, full_message_list):
         for full_message in full_message_list:
             if( full_message.message == message ):
+                return True
+
+        return False
+
+    def _token_val_exists_in_list( self, token_val, full_token_list):
+        for full_token in full_token_list:
+            if( full_token['token_val'] == token_val ):
                 return True
 
         return False

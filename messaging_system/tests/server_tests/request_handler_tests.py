@@ -4,18 +4,21 @@ import json
 from messaging_system.server.request_handler import RequestHandler
 from messaging_system.server.client_connection_service import ClientConnectionService
 from messaging_system.resources import opcodes, header_keys, MAGIC_NUMBER_1, MAGIC_NUMBER_2
+from messaging_system.server.db_model import drop_all, create_all
 
 class RequestHandlerTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.connection_service = ClientConnectionService()
+
     def setUp(self):
-        self.connection_service = ClientConnectionService()
-
-        #Add dummy accounts
-        self.connection_service.add_account('ac1', 'pass1')
-        self.connection_service.add_account('ac2', 'pass2')
-        self.connection_service.add_account('ac3', 'pass3')
-        self.connection_service.add_account('ac4', 'pass4')
-
         self.request_handler = RequestHandler(self.connection_service)
+
+        self.connection_service.reset_session()
+        drop_all(self.connection_service.engine)
+        create_all(self.connection_service.engine)
+        self._add_test_accounts()
+
         self.dummy_addr = ('127.0.0.1', 2000)
 
     def test_invalid_magic_number(self):
@@ -320,11 +323,17 @@ class RequestHandlerTests(unittest.TestCase):
         self.assertEqual(self.request_handler.curr_response[1][0][header_keys['OPCODE']], opcodes['RETRIEVE_ACK'])
         self.assertEqual(self.request_handler.curr_response[2][0][header_keys['OPCODE']], opcodes['END_OF_RETRIEVE_ACK'])
 
-        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['MESSAGE']], message_1)
-        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['MESSAGE']], message_2)
+        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['MESSAGE']], message_2)
+        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['MESSAGE']], message_1)
 
-        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['FROM_USERNAME']], 'ac1')
-        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['FROM_USERNAME']], 'ac2')
+        self.assertEqual(self.request_handler.curr_response[0][0][header_keys['FROM_USERNAME']], 'ac2')
+        self.assertEqual(self.request_handler.curr_response[1][0][header_keys['FROM_USERNAME']], 'ac1')
+
+    def _add_test_accounts(self):
+        self.connection_service.add_account('ac1', 'pass1')
+        self.connection_service.add_account('ac2', 'pass2')
+        self.connection_service.add_account('ac3', 'pass3')
+        self.connection_service.add_account('ac4', 'pass4')
 
 if __name__ == '__main__':
     unittest.main()
