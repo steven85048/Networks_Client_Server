@@ -22,6 +22,10 @@ class ClientAccountService:
 
     def get_token(self):
         res = self.session.query(ClientAccount).filter(ClientAccount.username==self.account_username).one()
+        return res.token['token_val']
+
+    def get_token_full(self):
+        res = self.session.query(ClientAccount).filter(ClientAccount.username==self.account_username).one()
         return res.token
 
     # Assumes subscription_username is valid
@@ -63,7 +67,7 @@ class ClientAccountService:
         self.session.commit()
 
     def is_token_valid(self):
-        token = self.get_token()
+        token = self.get_token_full()
         if( token is None ):
             return False
 

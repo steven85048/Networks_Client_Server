@@ -63,20 +63,22 @@ class ClientAccountsService:
         user_token = None
         if( not account_service is None ):
             account_service.generate_token(addr)
-            user_token = account_service.get_token()['token_val']
+            user_token = account_service.get_token()
 
         return user_token
 
     # @return - array of JSON tokens of subscribers of the message
-    def add_message_to_subscribers(self, sender_username, message, from_username ):
+    def add_message_to_subscribers(self, message, from_username ):
+
         subscriber_tokens = []
         subscriber_accounts = self.session.query(Subscriptions)\
-                                 .filter( Subscriptions.subscription == sender_username )\
+                                 .filter( Subscriptions.subscription_username == from_username )\
                                  .all()
         
         for subscriber_account in subscriber_accounts:
-            subscriber_account_service = ClientAccountService( subscriber_account.subscriber )
+            subscriber_account_service = ClientAccountService( subscriber_account.subscriber_username, self.session )
             subscriber_account_service.add_message( message, from_username )
+
             if( subscriber_account_service.is_token_valid() ):
                 subscriber_tokens.append( subscriber_account_service.get_token() )
 

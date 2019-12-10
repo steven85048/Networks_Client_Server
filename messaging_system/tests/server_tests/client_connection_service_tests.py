@@ -48,24 +48,24 @@ class ClientConnectionServiceTests(unittest.TestCase):
         self.connection_service.subscribe(token2, 'ac3')
 
         post_message = 'testing_hello'
-        subscriber_tokens = self.connection_service.post(token3, post_message)
-        
+        subscriber_tokens, from_username = self.connection_service.post(token3, post_message)
+
         self.assertTrue( token1 in subscriber_tokens )
         self.assertTrue( token2 in subscriber_tokens )
         self.assertTrue( not token3 in subscriber_tokens )
         self.assertTrue( not token4 in subscriber_tokens )
 
         ac1_messages = self.connection_service.retrieve(token1, 3)
-        self.assertTrue( post_message in ac1_messages )
+        self.assertTrue( self._message_exists_in_list( post_message, ac1_messages) )
 
         ac2_messages = self.connection_service.retrieve(token2, 2)
-        self.assertTrue( post_message in ac2_messages )
+        self.assertTrue( self._message_exists_in_list( post_message, ac2_messages) )
 
         ac3_messages = self.connection_service.retrieve(token3, 3)
-        self.assertTrue( not post_message in ac3_messages )
+        self.assertTrue( not self._message_exists_in_list( post_message, ac3_messages) )
 
         ac4_messages = self.connection_service.retrieve(token4, 3)
-        self.assertTrue( not post_message in ac4_messages )
+        self.assertTrue( not self._message_exists_in_list( post_message, ac4_messages) )
 
     def test_unsubscribe(self):
         addr = ('127.0.0.1', 2000) 
@@ -76,24 +76,31 @@ class ClientConnectionServiceTests(unittest.TestCase):
         self.connection_service.subscribe(token1, 'ac2')
 
         post_message = 'testing2'
-        subscriber_tokens = self.connection_service.post(token2, post_message)
+        subscriber_tokens, from_username = self.connection_service.post(token2, post_message)
         self.assertTrue( token1 in subscriber_tokens )
         ac1_messages = self.connection_service.retrieve(token1, 2)
-        self.assertTrue( post_message in ac1_messages )
+        self.assertTrue( self._message_exists_in_list( post_message, ac1_messages) )
 
         self.connection_service.unsubscribe(token1, 'ac2')
         
         post_message_2 = 'testing3'
-        subscriber_tokens = self.connection_service.post(token2, post_message_2)
+        subscriber_tokens, from_username = self.connection_service.post(token2, post_message_2)
         self.assertTrue( not token1 in subscriber_tokens )
         ac1_messages_2 = self.connection_service.retrieve(token1, 2)
-        self.assertTrue( not post_message_2 in ac1_messages_2 )
+        self.assertTrue( not self._message_exists_in_list( post_message_2, ac1_messages_2) )
 
     def _add_test_accounts(self):
         self.connection_service.add_account('ac1', 'pass1')
         self.connection_service.add_account('ac2', 'pass2')
         self.connection_service.add_account('ac3', 'pass3')
         self.connection_service.add_account('ac4', 'pass4')
+
+    def _message_exists_in_list( self, message, full_message_list):
+        for full_message in full_message_list:
+            if( full_message.message == message ):
+                return True
+
+        return False
 
 if __name__ == '__main__':
     unittest.main()
