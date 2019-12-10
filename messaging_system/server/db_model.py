@@ -33,19 +33,16 @@ class Subscriptions(Base):
     subscription = relationship(ClientAccount, foreign_keys=[subscriber_username])
     subscriber = relationship(ClientAccount, foreign_keys=[subscription_username])
 
-def create_all():
+def create_all(engine):
     # psql -h 3.136.156.128 -p 5432 -U root networks-messaging-server
     # to connect to dev database
-    engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
-    connection = engine.connect()
-
     Base.metadata.create_all(engine)
 
-def drop_all():
-    engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
-    connection = engine.connect()
-
+def drop_all(engine):
     Base.metadata.drop_all(engine)
 
 if __name__ == '__main__':
-    create_all()
+    engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
+    connection = engine.connect()
+
+    create_all(engine)
