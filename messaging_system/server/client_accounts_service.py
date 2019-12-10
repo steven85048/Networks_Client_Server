@@ -46,7 +46,7 @@ class ClientAccountsService:
         subscriber_tokens = []
         for account in self.client_accounts:
             if sender_username in account.subscriptions:
-                account.add_message(( message, from_username ))
+                account.add_message( message, from_username )
                 if( account.is_token_valid() ):
                     subscriber_tokens.append( account.get_token() )
 

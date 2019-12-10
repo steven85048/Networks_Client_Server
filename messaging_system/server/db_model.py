@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, ForeignKey, Column, Integer, String, JSON, Date
+from sqlalchemy import create_engine, ForeignKey, Column, Integer, String, JSON, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import datetime
@@ -18,9 +18,14 @@ class Messages(Base):
     id = Column(Integer, primary_key=True)
 
     message = Column(String(250))
-    account = relationship(ClientAccount)
-    account_name = Column(String(250), ForeignKey('client_account.username'))
-    post_time = Column(Date, default=datetime.datetime.now)
+
+    to_account_username = Column(String(250), ForeignKey('client_account.username'))
+    from_account_username = Column(String(250), ForeignKey('client_account.username'))
+
+    to_account = relationship(ClientAccount, foreign_keys=[to_account_username])
+    from_account = relationship(ClientAccount, foreign_keys=[from_account_username])
+
+    post_time = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Subscriptions(Base):
     __tablename__ = 'subscriptions'

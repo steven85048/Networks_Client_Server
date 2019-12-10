@@ -51,8 +51,7 @@ class ClientConnectionService:
         if to_subscribe_username == self.curr_account.get_username():
             raise MalformedRequestHeaderException("Subscription error - Cannot subscribe to yourself")
 
-        if not self.curr_account.add_subscription(to_subscribe_username):
-            raise MalformedRequestHeaderException("Subscription error - Already subscribed to this user")
+        self.curr_account.add_subscription(to_subscribe_username)
 
     @user_logged_in
     def unsubscribe(self, token, to_unsubscribe_username):
@@ -60,8 +59,7 @@ class ClientConnectionService:
         if not self.client_accounts_service.username_exists(to_unsubscribe_username):
             raise MalformedRequestHeaderException("Unsubscription error - The provided username does not exist")
 
-        if not self.curr_account.remove_subscription(to_unsubscribe_username):
-            raise MalformedRequestHeaderException("Unsubscription error - Cannot unsubscribe from someone you are not already subscribed to")
+        self.curr_account.remove_subscription(to_unsubscribe_username)
 
     @user_logged_in
     def post(self, token, message): 

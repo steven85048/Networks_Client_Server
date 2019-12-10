@@ -27,6 +27,7 @@ class ClientAccountTests(unittest.TestCase):
         self.connection.close()
         self.engine.dispose()
 
+    """
     def test_add_subscription_successful(self):
         rc = self.client_account_service.add_subscription('ac2')
         self.assertTrue( rc is True )
@@ -46,6 +47,16 @@ class ClientAccountTests(unittest.TestCase):
         self.client_account_service.generate_token(('127.0.0.1', 5006))
         token = self.client_account_service.get_token()
         print(token['token_val'])
+    """
+
+    def testAddAndGetMessages(self):
+        self.client_account_service.add_message('hello1', 'ac2')
+        self.client_account_service.add_message('hello2', 'ac2')
+        self.client_account_service.add_message('hello3', 'ac2')
+
+        messages = self.client_account_service.get_messages(2)
+        for message in messages:
+            print(message.message)
 
     # TODO: Move to client accounts service
     def add_account(self, username, password):
