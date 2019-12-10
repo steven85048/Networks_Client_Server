@@ -8,9 +8,7 @@ Base = declarative_base()
 class ClientAccount(Base):
     __tablename__ = 'client_account'
 
-    id = Column(Integer, primary_key=True)
-
-    username = Column(String(250), nullable=False, unique=True)
+    username = Column(String(250), primary_key=True)
     password = Column(String(250), nullable=False)
     token = Column(JSON)
 
@@ -21,7 +19,7 @@ class Messages(Base):
 
     message = Column(String(250))
     account = relationship(ClientAccount)
-    account_id = Column(Integer, ForeignKey('client_account.id'))
+    account_name = Column(String(250), ForeignKey('client_account.username'))
     post_time = Column(Date, default=datetime.datetime.now)
 
 class Subscriptions(Base):
@@ -29,16 +27,25 @@ class Subscriptions(Base):
 
     id = Column(Integer, primary_key=True)
 
-    subscriber_id = Column(Integer, ForeignKey('client_account.id'), nullable=False)
-    subscription_id = Column(Integer, ForeignKey('client_account.id'), nullable=False)
+    subscriber_username = Column(String(250), ForeignKey('client_account.username'), nullable=False)
+    subscription_username = Column(String(250), ForeignKey('client_account.username'), nullable=False)
 
-    subscription = relationship(ClientAccount, foreign_keys=[subscriber_id])
-    subscriber = relationship(ClientAccount, foreign_keys=[subscription_id])
+    subscription = relationship(ClientAccount, foreign_keys=[subscriber_username])
+    subscriber = relationship(ClientAccount, foreign_keys=[subscription_username])
 
-if __name__ == '__main__':
+def create_all():
     # psql -h 3.136.156.128 -p 5432 -U root networks-messaging-server
     # to connect to dev database
     engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
     connection = engine.connect()
 
     Base.metadata.create_all(engine)
+
+def drop_all():
+    engine = create_engine('postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server')
+    connection = engine.connect()
+
+    Base.metadata.drop_all(engine)
+
+if __name__ == '__main__':
+    create_all()
