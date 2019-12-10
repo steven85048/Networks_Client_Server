@@ -2,16 +2,18 @@ import unittest
 
 from messaging_system.server.client_connection_service import ClientConnectionService
 from messaging_system.server.exceptions import InvalidTokenException
+from messaging_system.server.db_model import drop_all, create_all
 
 class ClientConnectionServiceTests(unittest.TestCase):
-    def setUp(self):
-        self.connection_service = ClientConnectionService()
+    @classmethod
+    def setUpClass(cls):
+        cls.connection_service = ClientConnectionService()
 
-        #Add dummy accounts
-        self.connection_service.add_account('ac1', 'pass1')
-        self.connection_service.add_account('ac2', 'pass2')
-        self.connection_service.add_account('ac3', 'pass3')
-        self.connection_service.add_account('ac4', 'pass4')
+    def setUp(self):
+        self.connection_service.reset_session()
+        drop_all(self.connection_service.engine)
+        create_all(self.connection_service.engine)
+        self._add_test_accounts()
 
     def test_login(self):
         addr = ('127.0.0.1', 2000)
@@ -86,6 +88,12 @@ class ClientConnectionServiceTests(unittest.TestCase):
         self.assertTrue( not token1 in subscriber_tokens )
         ac1_messages_2 = self.connection_service.retrieve(token1, 2)
         self.assertTrue( not post_message_2 in ac1_messages_2 )
+
+    def _add_test_accounts(self):
+        self.connection_service.add_account('ac1', 'pass1')
+        self.connection_service.add_account('ac2', 'pass2')
+        self.connection_service.add_account('ac3', 'pass3')
+        self.connection_service.add_account('ac4', 'pass4')
 
 if __name__ == '__main__':
     unittest.main()

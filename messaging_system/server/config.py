@@ -10,3 +10,5 @@ server_config = dict(
 
 MAX_RANDOM_TOKEN = 50000
 TOKEN_EXPIRATION_INTERVAL = timedelta(seconds = 90)
+
+DB_URL = 'postgresql+psycopg2://root:12345@3.136.156.128/networks-messaging-server'

@@ -5,7 +5,7 @@ from messaging_system.server.db_model import Base, ClientAccount, Messages, Subs
 from messaging_system.server.client_account_service_postgres import ClientAccountService
 
 class ClientAccountsService:
-    def __init__(self, session):
+    def __init__(self, session = None):
         self.session = session
 
     def add_account(self, username, password):
@@ -24,7 +24,10 @@ class ClientAccountsService:
                       .filter( ClientAccount.username == username )\
                       .first()
 
-        account_service = ClientAccountService(self.session)
+        account_service = None
+        if( not account is None ):
+            account_service = ClientAccountService( username, self.session )
+        
         return account_service
 
     def get_user_from_credentials(self, username, password):
@@ -33,7 +36,10 @@ class ClientAccountsService:
                       .filter( ClientAccount.password == password )\
                       .first()
 
-        account_service = ClientAccountService(self.session)
+        account_service = None
+        if( not account is None ):
+            account_service = ClientAccountService( username, self.session )
+        
         return account_service
 
     def username_exists(self, username):
@@ -44,9 +50,14 @@ class ClientAccountsService:
         return account_num == 1
 
     def login(self, username, password, addr):
-        account_service = get_user_from_credentials(username, password)
-        account_service.generate_token(addr)
-        return account_service.get_token()
+        account_service = self.get_user_from_credentials(username, password)
+
+        user_token = None
+        if( not account_service is None ):
+            account_service.generate_token(addr)
+            user_token = account_service.get_token()
+
+        return user_token
 
     # @return - array of JSON tokens of subscribers of the message
     def add_message_to_subscribers(self, sender_username, message, from_username ):
@@ -62,3 +73,9 @@ class ClientAccountsService:
                 subscriber_tokens.append( subscriber_account_service.get_token() )
 
         return subscriber_tokens
+
+    def reset_session(self, new_session):
+        if( not self.session is None ):
+            self.session.commit()
+    
+        self.session = new_session
