@@ -3,6 +3,7 @@
 from numpy.random import randint
 from datetime import datetime
 from sqlalchemy import update, desc
+from dateutil import parser
 
 from messaging_system.server.db_model import Base, ClientAccount, Messages, Subscriptions
 from messaging_system.server.config import MAX_RANDOM_TOKEN, TOKEN_EXPIRATION_INTERVAL
@@ -60,6 +61,20 @@ class ClientAccountService:
         account.token = token
 
         self.session.commit()
+
+    def is_token_valid(self):
+        token = self.get_token()
+        if( token is None ):
+            return False
+
+        current_time = datetime.utcnow()     
+        token_time = parser.parse(token['time'])
+
+        if( token_time + TOKEN_EXPIRATION_INTERVAL < current_time ):
+            self.logout()
+            return False
+
+        return True
 
     def add_message(self, message, from_username):
         new_message = Messages(message=message, to_account_username=self.account_username, from_account_username=from_username)

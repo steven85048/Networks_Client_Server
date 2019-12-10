@@ -43,12 +43,15 @@ class ClientAccountTests(unittest.TestCase):
         num_subscriptions = self.session.query(Subscriptions).count()
         self.assertTrue(num_subscriptions == 0)
 
+    """
     def test_generate_token(self):
         self.client_account_service.generate_token(('127.0.0.1', 5006))
         token = self.client_account_service.get_token()
-        print(token['token_val'])
-    """
 
+        is_token_valid = self.client_account_service.is_token_valid()
+        self.assertTrue(is_token_valid is True)
+
+    """
     def testAddAndGetMessages(self):
         self.client_account_service.add_message('hello1', 'ac2')
         self.client_account_service.add_message('hello2', 'ac2')
@@ -57,6 +60,7 @@ class ClientAccountTests(unittest.TestCase):
         messages = self.client_account_service.get_messages(2)
         for message in messages:
             print(message.message)
+    """
 
     # TODO: Move to client accounts service
     def add_account(self, username, password):
