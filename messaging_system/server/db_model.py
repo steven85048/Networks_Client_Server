@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine, ForeignKey, Column, Integer, String, JSON, DateTime
+from sqlalchemy import create_engine, ForeignKey, Column, Integer, String, DateTime
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 import datetime
@@ -10,7 +11,7 @@ class ClientAccount(Base):
 
     username = Column(String(250), primary_key=True)
     password = Column(String(250), nullable=False)
-    token = Column(JSON)
+    token = Column(JSONB)
 
 class Messages(Base):
     __tablename__ = 'messages'

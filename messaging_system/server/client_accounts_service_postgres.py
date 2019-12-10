@@ -14,9 +14,16 @@ class ClientAccountsService:
         self.session.commit()
 
     def get_user_from_token(self, token_number):
-        self.session.query(ClientAccount)\
-            .filter( not ClientAccount.token is None and ClientAccount.token['token_val'] == token_number )\
-            .first()
+        account = self.session.query(ClientAccount)\
+                      .filter( not ClientAccount.token is None )\
+                      .filter( ClientAccount.token['token_val'].astext == str(token_number) )\
+                      .first()
+
+        account_service = None
+        if( not account is None ):
+            account_service = ClientAccountService( account.username, self.session )
+        
+        return account_service
 
     # Creates a ClientAccountService for interacting with a single account
     def get_user_from_username(self, username):
@@ -49,13 +56,14 @@ class ClientAccountsService:
 
         return account_num == 1
 
+    # @return - Numerical value of the token
     def login(self, username, password, addr):
         account_service = self.get_user_from_credentials(username, password)
 
         user_token = None
         if( not account_service is None ):
             account_service.generate_token(addr)
-            user_token = account_service.get_token()
+            user_token = account_service.get_token()['token_val']
 
         return user_token
 
